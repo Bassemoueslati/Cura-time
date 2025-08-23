@@ -27,6 +27,19 @@ const DoctorDetailPage: React.FC = () => {
         setLoading(true);
         const doctorData = await doctorService.getDoctorById(parseInt(id));
         setDoctor(doctorData);
+
+        // Quick booking prefill from list page
+        const qb = localStorage.getItem('quickBooking');
+        if (qb) {
+          try {
+            const { doctorId, date, time } = JSON.parse(qb);
+            if (doctorId === doctorData.id) {
+              setSelectedDate(date);
+              setSelectedTime(time);
+            }
+          } catch {}
+          localStorage.removeItem('quickBooking');
+        }
       } catch (err: any) {
         setError('Erreur lors du chargement du médecin');
         console.error('Error fetching doctor:', err);

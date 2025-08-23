@@ -13,6 +13,7 @@ from .permissions import IsAdmin, IsClient, IsDoctor
 import random
 from django.core.mail import send_mail
 from django.core.cache import cache
+from django.conf import settings
 
 
 login_schema = openapi.Schema(
@@ -30,7 +31,7 @@ login_schema = openapi.Schema(
 
 register_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
-    required=['email', 'password', 'user_role'],
+    required=['email', 'password'],  # user_role optional for patient
     properties={
         'email': openapi.Schema(type=openapi.TYPE_STRING, description='User email'),
         'password': openapi.Schema(type=openapi.TYPE_STRING, description='User password'),
@@ -40,8 +41,8 @@ register_schema = openapi.Schema(
         'gender': openapi.Schema(type=openapi.TYPE_STRING, description='Gender'),
         'user_role': openapi.Schema(
             type=openapi.TYPE_STRING,
-            description='Role of the user (admin or client)',
-            default='client',  # 👈 This is the default value
+            description='Role of the user (admin or client). Defaults to client when omitted.',
+            default='client',
             enum=['admin', 'client']
         ),
     },
@@ -51,8 +52,8 @@ register_schema = openapi.Schema(
         'first_name': 'Client',
         'last_name': 'Example',
         'adresse': '123 Example Street',
-        'gender': 'M',
-        'user_role': 'client'  # 👈 Default shown in example too
+        'gender': 'M'
+        # user_role omitted -> defaults to client
     }
 )
 # ---------------------------
@@ -183,6 +184,10 @@ class DoctorLoginView(APIView):
         user = authenticate(username=email, password=password)
 
         if user and user.user_role == 'doctor':
+            # Block login if account is inactive
+            if not user.is_active:
+                return Response({'error': 'Compte inactif, contactez l\'administrateur'}, status=403)
+
             try:
                 doctor = Doctor.objects.get(email=user.email)
             except Doctor.DoesNotExist:
@@ -193,9 +198,15 @@ class DoctorLoginView(APIView):
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
                 'doctor_id': doctor.id,
+                'user_id': user.id,
                 'first_name': user.first_name,
                 'last_name': user.last_name,
-                'email': user.email
+                'email': user.email,
+                'user_role': user.user_role,
+                'is_active': user.is_active,
+                'is_staff': user.is_staff,
+                'adresse': user.adresse,
+                'date_joined': user.date_joined,
             })
         return Response({'error': 'Invalid credentials or not a doctor'}, status=401)
 class DoctorAppointmentListView(generics.ListAPIView):
@@ -221,7 +232,7 @@ class UserUpdateView(generics.UpdateAPIView):
         return self.request.user
 
 class DoctorListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     queryset = Doctor.objects.all()
     serializer_class = DoctorSerializer
 
@@ -267,7 +278,7 @@ class AppointmentDeleteView(generics.DestroyAPIView):
 
 class DoctorsBySpecialtyView(generics.ListAPIView):
     serializer_class = DoctorSerializer
-    permission_classes = [IsClient]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         specialty_id = self.kwargs['specialty_id']  # utilisez bien le nom en minuscule
@@ -723,7 +734,11 @@ class DoctorRecentAppointmentsView(APIView):
 class SpecialtyListCreateView(generics.ListCreateAPIView):
     queryset = Specialty.objects.all()
     serializer_class = SpecializationSerializer
-    permission_classes = [IsAuthenticated]
+    # Allow listing for anyone; restrict creation to admin
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAuthenticated()]
 
 class SpecialtyRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Specialty.objects.all()
@@ -742,21 +757,26 @@ class ForgotPasswordAPIView(APIView):
         try:
             user = User.objects.get(email=email)
 
+            # Restrict to patients only
+            if user.user_role != 'client':
+                return Response({"error": "Cette fonctionnalité est réservée aux patients."}, status=status.HTTP_403_FORBIDDEN)
+
             verification_code = random.randint(1000, 9999)
+            support_email = getattr(settings, 'SUPPORT_EMAIL', settings.EMAIL_HOST_USER)
             cache.set(f'verification_code_{email}', verification_code, timeout=300)
 
             send_mail(
-                subject='Password Reset Verification Code',
-                message=f'Your verification code is {verification_code}. It is valid for 5 minutes.',
+                subject='Code de vérification pour réinitialisation',
+                message=f'Votre code de vérification est {verification_code}. Il est valable 5 minutes.',
                 from_email='bassemoueslati59@gmail.com',
                 recipient_list=[email],
                 fail_silently=False,
             )
 
-            return Response({"message": "Verification code sent to your email."}, status=status.HTTP_200_OK)
+            return Response({"message": "Code de vérification envoyé à votre email."}, status=status.HTTP_200_OK)
 
         except User.DoesNotExist:
-            return Response({"error": "User with this email does not exist."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "Aucun utilisateur avec cet email."}, status=status.HTTP_404_NOT_FOUND)
 
 class VerifyCodeAPIView(APIView):
     @swagger_auto_schema(request_body=VerifyCodeSerializer)
@@ -771,20 +791,23 @@ class VerifyCodeAPIView(APIView):
 
         cached_code = cache.get(f'verification_code_{email}')
         if not cached_code:
-            return Response({"error": "Verification code has expired or is invalid."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Le code a expiré ou est invalide."}, status=status.HTTP_400_BAD_REQUEST)
 
         if str(cached_code) != str(code):
-            return Response({"error": "Invalid verification code."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Code de vérification invalide."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             user = User.objects.get(email=email)
+            # Restrict reset to patients only
+            if user.user_role != 'client':
+                return Response({"error": "La réinitialisation est réservée aux patients."}, status=status.HTTP_403_FORBIDDEN)
             user.set_password(new_password)
             user.save()
             cache.delete(f'verification_code_{email}')
-            return Response({"message": "Password reset successfully."}, status=status.HTTP_200_OK)
+            return Response({"message": "Mot de passe réinitialisé avec succès."}, status=status.HTTP_200_OK)
 
         except User.DoesNotExist:
-            return Response({"error": "User with this email does not exist."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "Utilisateur introuvable."}, status=status.HTTP_404_NOT_FOUND)
 
 class AdminDoctorsCountView(APIView):
     """Vue simple pour compter les médecins - pour debug"""
@@ -820,3 +843,77 @@ class AdminSpecialtiesForFormsView(APIView):
             'specialties': specialties_data,
             'count': len(specialties_data)
         })
+
+class SupportContactView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        subject = request.data.get('subject', 'Support CuraTime')
+        category = request.data.get('category', 'general')
+        message = request.data.get('message', '')
+        from_email = request.data.get('email', None)
+
+        if not message:
+            return Response({'error': 'Le message est requis.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        support_email = getattr(settings, 'SUPPORT_EMAIL', settings.EMAIL_HOST_USER)
+        body = f"Catégorie: {category}\nExpéditeur: {from_email or 'anonyme'}\n\n{message}"
+        try:
+            send_mail(
+                subject=subject,
+                message=body,
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[support_email],
+                fail_silently=False,
+            )
+            return Response({'message': 'Message envoyé au support.'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class DoctorMeView(APIView):
+    permission_classes = [IsAuthenticated, IsDoctor]
+
+    def get(self, request):
+        try:
+            doctor = Doctor.objects.get(email=request.user.email)
+            return Response({
+                'user': UserUpdateSerializer(request.user).data,
+                'doctor': DoctorSerializer(doctor).data
+            })
+        except Doctor.DoesNotExist:
+            return Response({'error': 'Profil médecin introuvable'}, status=status.HTTP_404_NOT_FOUND)
+
+    def patch(self, request):
+        # Allows updating user fields (first_name, last_name, email, password) and doctor fields (phone, address, city, etc.) or availability
+        try:
+            doctor = Doctor.objects.get(email=request.user.email)
+        except Doctor.DoesNotExist:
+            return Response({'error': 'Profil médecin introuvable'}, status=status.HTTP_404_NOT_FOUND)
+
+        user_serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
+        doctor_fields = {k: v for k, v in request.data.items() if k in ['first_name','last_name','email','password']}
+        availability = request.data.get('availability', None)
+
+        if availability is not None:
+            if not isinstance(availability, dict):
+                return Response({'error': 'availability doit être un objet JSON'}, status=status.HTTP_400_BAD_REQUEST)
+            for date_str, times in availability.items():
+                if not isinstance(times, list) or not all(isinstance(t, str) and len(t) >= 4 for t in times):
+                    return Response({'error': f"Format invalide pour {date_str}"}, status=status.HTTP_400_BAD_REQUEST)
+            doctor.availability = availability
+
+        # Update doctor simple fields if provided
+        for field in ['phone','address','city','state','zip_code','bio','consultation_fee']:
+            if field in request.data:
+                setattr(doctor, field, request.data[field])
+
+        if user_serializer.is_valid():
+            user_serializer.save()
+            doctor.save()
+            return Response({
+                'message': 'Profil mis à jour',
+                'user': user_serializer.data,
+                'doctor': DoctorSerializer(doctor).data
+            })
+        else:
+            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

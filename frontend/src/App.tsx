@@ -12,13 +12,16 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/Auth/LoginPage';
 import RegisterPage from './pages/Auth/RegisterPage';
 import ForgotPasswordPage from './pages/Auth/ForgotPasswordPage';
+import ResetPasswordPage from './pages/Auth/ResetPasswordPage';
 import DoctorLoginPage from './pages/Auth/DoctorLoginPage';
 import AdminLoginPage from './pages/Auth/AdminLoginPage';
+import SupportPage from './pages/SupportPage';
 
 // Client pages
 import ClientDashboard from './pages/Client/Dashboard';
 import DoctorsPage from './pages/Client/DoctorsPage';
 import DoctorDetailPage from './pages/Client/DoctorDetailPage';
+import DoctorProfilePage from './pages/Doctor/DoctorProfilePage';
 
 // Client pages (continued)
 import AppointmentsPage from './pages/Client/AppointmentsPage';
@@ -47,10 +50,12 @@ function App() {
             <Route path="/login" element={<Layout><LoginPage /></Layout>} />
             <Route path="/register" element={<Layout><RegisterPage /></Layout>} />
             <Route path="/forgot-password" element={<Layout><ForgotPasswordPage /></Layout>} />
+            <Route path="/reset-password" element={<Layout><ResetPasswordPage /></Layout>} />
             <Route path="/doctor/login" element={<Layout><DoctorLoginPage /></Layout>} />
             <Route path="/admin/login" element={<Layout><AdminLoginPage /></Layout>} />
             <Route path="/doctors" element={<Layout><DoctorsPage /></Layout>} />
             <Route path="/doctors/:id" element={<Layout><DoctorDetailPage /></Layout>} />
+            <Route path="/support" element={<Layout><SupportPage /></Layout>} />
 
             {/* Client protected routes */}
             <Route path="/dashboard" element={
@@ -78,6 +83,11 @@ function App() {
             <Route path="/doctor/appointments" element={
               <ProtectedRoute requiredRole="doctor" redirectTo="/doctor/login">
                 <Layout><DoctorAppointmentsPage /></Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/doctor/profile" element={
+              <ProtectedRoute requiredRole="doctor" redirectTo="/doctor/login">
+                <Layout><DoctorProfilePage /></Layout>
               </ProtectedRoute>
             } />
 

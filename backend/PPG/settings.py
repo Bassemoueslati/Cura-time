@@ -104,6 +104,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'bassemoueslati59@gmail.com'  
 EMAIL_HOST_PASSWORD = 'feuu qchi ipik wixz '  
+SUPPORT_EMAIL = 'bassemoueslati59@gmail.com'
 
 WSGI_APPLICATION = 'PPG.wsgi.application'
 
@@ -129,6 +130,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'bassemoueslati59@gmail.com'  # Replace with the sender's email
 EMAIL_HOST_PASSWORD = 'feuu qchi ipik wixz '  # Replace with the email password
+SUPPORT_EMAIL = 'bassemoueslati59@gmail.com'
 
 
 # Password validation

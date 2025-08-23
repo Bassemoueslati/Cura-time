@@ -11,9 +11,12 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
+        # Default to CLIENT when user_role is not provided (patient signup)
+        role = validated_data.get('user_role', User.UserRole.CLIENT)
+
         user = User(
             email=validated_data['email'],
-            user_role=validated_data['user_role'],
+            user_role=role,
             first_name=validated_data.get('first_name', ''),
             last_name=validated_data.get('last_name', ''),
             adresse=validated_data.get('adresse', ''),
@@ -21,7 +24,7 @@ class UserSerializer(serializers.ModelSerializer):
         )
         user.set_password(validated_data['password'])
 
-        if validated_data['user_role'] == User.UserRole.ADMIN:
+        if role == User.UserRole.ADMIN:
             user.is_superuser = True
             user.is_staff = True
 
@@ -29,9 +32,11 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 class UserUpdateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False, allow_blank=False)
+
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'adresse', 'gender']
+        fields = ['first_name', 'last_name', 'email', 'adresse', 'gender', 'password']
         extra_kwargs = {
             'email': {'required': True},
             'first_name': {'required': False},
@@ -41,11 +46,11 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         }
 
     def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
         for attr, value in validated_data.items():
-            if attr == 'password':
-                instance.set_password(value)
-            else:
-                setattr(instance, attr, value)
+            setattr(instance, attr, value)
+        if password:
+            instance.set_password(password)
         instance.save()
         return instance
 

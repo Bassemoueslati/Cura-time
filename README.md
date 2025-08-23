@@ -5,6 +5,8 @@
 ![Django](https://img.shields.io/badge/Django-4.x-092E20?logo=django)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15.x-336791?logo=postgresql)
+  path('support/contact/', SupportContactView.as_view(), name='support-contact'),
+    path('doctors/me/', DoctorMeView.as_view(), name='doctor-me'),
 
 ## 📋 Description
 

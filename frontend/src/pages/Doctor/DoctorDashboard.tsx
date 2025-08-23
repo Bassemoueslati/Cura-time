@@ -275,23 +275,54 @@ const DoctorDashboard: React.FC = () => {
               }}>
                 Calendrier des Rendez-vous
               </h3>
-              <button
-                onClick={() => navigate('/doctor/appointments')}
-                style={{
-                  padding: '0.5rem 1rem',
-                  backgroundColor: '#3b82f6',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.875rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
-              >
-                Voir tout
-              </button>
+              <div style={{ display: 'flex', gap: '.5rem' }}>
+                <button
+                  onClick={() => navigate('/doctor/appointments')}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#3b82f6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.5rem',
+                    fontSize: '0.875rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+                >
+                  Voir tout
+                </button>
+                <button
+                  onClick={async () => {
+                    try {
+                      const me = await apiService.get<any>('/doctors/me/');
+                      const current = me.availability || {};
+                      const input = prompt('Collez un JSON de disponibilités (ex: {"2025-08-25":["09:00","09:30"]})', JSON.stringify(current));
+                      if (!input) return;
+                      const availability = JSON.parse(input);
+                      await apiService.patch('/doctors/me/', { availability });
+                      alert('Disponibilités mises à jour.');
+                    } catch (e) {
+                      console.error(e);
+                    }
+                  }}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#10b981',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.5rem',
+                    fontSize: '0.875rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#059669'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+                >
+                  Modifier mes disponibilités
+                </button>
+              </div>
             </div>
 
             {/* Mini Calendar */}

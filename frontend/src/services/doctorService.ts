@@ -20,6 +20,15 @@ export class DoctorService {
     return response;
   }
 
+  // Doctor self profile
+  async getMe(): Promise<{ user: any, doctor: any }> {
+    return await apiService.get('/doctors/me/');
+  }
+
+  async updateMe(data: any): Promise<{ message: string, user: any, doctor: any }> {
+    return await apiService.patch('/doctors/me/', data);
+  }
+
   // Create new doctor (Admin only)
   async createDoctor(doctorData: Omit<Doctor, 'id'>): Promise<Doctor> {
     const response = await apiService.post<Doctor>('/admin/doctors/', doctorData);
@@ -39,7 +48,8 @@ export class DoctorService {
 
   // Get all specialties
   async getAllSpecialties(): Promise<Specialty[]> {
-    const response = await apiService.get<Specialty[]>('/admin/specialties/');
+    // Public list for patients and guests
+    const response = await apiService.get<Specialty[]>('/specialties/');
     return response;
   }
 

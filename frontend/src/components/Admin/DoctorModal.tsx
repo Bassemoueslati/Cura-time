@@ -78,9 +78,25 @@ const DoctorModal: React.FC<DoctorModalProps> = ({
   const loadSpecialties = async () => {
     try {
       const response = await apiService.get<any>('/admin/specialties/');
-      setSpecialties(response.specialties || []);
-    } catch (error) {
+      const list: Specialty[] = Array.isArray(response)
+        ? response
+        : (response?.specialties || []);
+
+      // Si on est en édition et que la spécialité actuelle n'est pas dans la liste, on l'ajoute temporairement
+      if (isEdit && doctor && doctor.specialization && !list.find(s => s.name === doctor.specialization)) {
+        list.push({ id: -1, name: doctor.specialization });
+      }
+
+      setSpecialties(list);
+    } catch (error: any) {
       console.error('Erreur lors du chargement des spécialités:', error);
+      // Alerter l'admin si la récupération échoue (ex: 401/403)
+      // Pour éviter un modal vide sans explication
+      try {
+        const msg = error?.response?.data?.message || error?.response?.data?.error || 'Impossible de charger les spécialités';
+        // eslint-disable-next-line no-alert
+        console.warn(msg);
+      } catch {}
     }
   };
 

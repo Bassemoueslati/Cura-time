@@ -146,7 +146,7 @@ const Footer: React.FC = () => {
                 { label: 'À propos', href: '/about' },
                 { label: 'Services', href: '/services' },
                 { label: 'Spécialités', href: '/doctors' },
-                { label: 'Contact', href: '/contact' }
+                { label: 'Support', href: '/support' }
               ].map((link, index) => (
                 <li key={index} style={{ marginBottom: '0.5rem' }}>
                   <Link
@@ -220,7 +220,7 @@ const Footer: React.FC = () => {
                   <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z"/>
                 </svg>
                 <span style={{ color: '#94a3b8', fontSize: '0.875rem' }}>
-                  contact@curatime.com
+                  bassemoueslati59@gmail.com
                 </span>
               </div>
               

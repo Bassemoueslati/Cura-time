@@ -24,7 +24,7 @@ const ForgotPasswordPage: React.FC = () => {
     try {
       await apiService.post('/client/forgot-password/', data);
       setEmailSent(true);
-      toast.success('Un email de réinitialisation a été envoyé à votre adresse !');
+      toast.success('Code de vérification envoyé à votre email (patients uniquement).');
     } catch (error: any) {
       console.error('Erreur lors de l\'envoi de l\'email:', error);
       toast.error(error.response?.data?.detail || 'Erreur lors de l\'envoi de l\'email');
@@ -85,9 +85,9 @@ const ForgotPasswordPage: React.FC = () => {
             lineHeight: '1.6',
             marginBottom: '2rem'
           }}>
-            Nous avons envoyé un lien de réinitialisation à <strong>{getValues('email')}</strong>.
+            Nous avons envoyé un code de vérification à <strong>{getValues('email')}</strong> (patients uniquement).
             <br />
-            Vérifiez votre boîte de réception et suivez les instructions.
+            Allez à la page Réinitialiser le mot de passe pour saisir le code et votre nouveau mot de passe.
           </p>
 
           <div style={{
@@ -144,11 +144,11 @@ const ForgotPasswordPage: React.FC = () => {
                 e.currentTarget.style.backgroundColor = '#3b82f6';
               }}
             >
-              Renvoyer l'email
+              Renvoyer le code
             </button>
 
             <Link
-              to="/login"
+              to={`/reset-password?email=${encodeURIComponent(getValues('email') || '')}`}
               style={{
                 display: 'inline-block',
                 padding: '0.75rem 1.5rem',
@@ -168,7 +168,7 @@ const ForgotPasswordPage: React.FC = () => {
                 e.currentTarget.style.backgroundColor = '#f1f5f9';
               }}
             >
-              Retour à la connexion
+              Aller à Réinitialiser le mot de passe
             </Link>
           </div>
         </div>

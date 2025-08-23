@@ -145,7 +145,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       toast.success('Connexion médecin réussie !');
     } catch (error: any) {
       console.error('Doctor login error:', error);
-      toast.error(error.response?.data?.detail || 'Erreur de connexion médecin');
+      const status = error?.response?.status;
+      const backendMsg = error?.response?.data?.error || error?.response?.data?.detail;
+      if (status === 403) {
+        toast.error("Tu n'as pas l'accès: votre compte médecin est désactivé par l'admin.");
+      } else if (backendMsg) {
+        toast.error(backendMsg);
+      } else {
+        toast.error('Erreur de connexion médecin');
+      }
       throw error;
     } finally {
       setIsLoading(false);

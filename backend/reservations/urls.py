@@ -88,4 +88,8 @@ urlpatterns = [
     # Doctor Dashboard
     path('doctors/dashboard/stats/', DoctorDashboardStatsView.as_view(), name='doctor-dashboard-stats'),
     path('doctors/appointments/recent/', DoctorRecentAppointmentsView.as_view(), name='doctor-recent-appointments'),
+
+    # Support & Doctor self endpoints
+    path('support/contact/', SupportContactView.as_view(), name='support-contact'),
+    path('doctors/me/', DoctorMeView.as_view(), name='doctor-me'),
 ]

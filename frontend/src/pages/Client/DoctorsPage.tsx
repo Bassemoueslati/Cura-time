@@ -522,6 +522,68 @@ const DoctorsPage: React.FC = () => {
                     </div>
                   )}
 
+                  {/* Availability Preview - next 3 upcoming slots */}
+                  {(() => {
+                    try {
+                      const slots: string[] = [];
+                      const now = new Date();
+                      const availability = doctor.availability || {} as Record<string, string[]>;
+                      const dates = Object.keys(availability).sort();
+                      for (const date of dates) {
+                        const times = availability[date] || [];
+                        for (const t of times) {
+                          const dt = new Date(`${date}T${t}:00`);
+                          if (dt > now) slots.push(`${date} ${t}`);
+                          if (slots.length >= 3) break;
+                        }
+                        if (slots.length >= 3) break;
+                      }
+                      if (!slots.length) return null;
+                      return (
+                        <div style={{
+                          backgroundColor: '#f8fafc',
+                          padding: '0.75rem',
+                          borderRadius: '0.5rem',
+                          marginBottom: '1.5rem',
+                          border: '1px solid #e2e8f0'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                            <svg width="16" height="16" fill="#10b981" viewBox="0 0 24 24">
+                              <path d="M6.75 3v2.25H4.5A2.25 2.25 0 002.25 7.5v10.125A2.25 2.25 0 004.5 19.875h15a2.25 2.25 0 002.25-2.25V7.5a2.25 2.25 0 00-2.25-2.25h-2.25V3a.75.75 0 00-1.5 0v2.25h-6V3a.75.75 0 00-1.5 0z" />
+                            </svg>
+                            <span style={{ fontSize: '0.875rem', color: '#334155', fontWeight: 600 }}>Prochains créneaux</span>
+                          </div>
+                          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            {slots.map((s, idx) => (
+                              <button
+                                key={idx}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const [date, time] = s.split(' ');
+                                  localStorage.setItem('quickBooking', JSON.stringify({ doctorId: doctor.id, date, time }));
+                                  window.location.href = `/doctors/${doctor.id}`;
+                                }}
+                                style={{
+                                  backgroundColor: 'white',
+                                  border: '1px solid #e2e8f0',
+                                  color: '#0f172a',
+                                  fontSize: '0.75rem',
+                                  padding: '0.25rem 0.5rem',
+                                  borderRadius: '0.375rem',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                {s}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    } catch {
+                      return null;
+                    }
+                  })()}
+
                   {/* Action Button */}
                   <Link
                     to={`/doctors/${doctor.id}`}
