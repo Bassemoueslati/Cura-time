@@ -1,0 +1,25 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+markdown = "*"
+django-filter = "*"
+pyjwt = "*"
+argon2-cffi = "*"
+psycopg2 = "*"
+django = "*"
+djangorestframework = "*"
+pillow = "*"
+psycopg2-binary = "*"
+python-decouple = "*"
+djangorestframework-simplejwt = "*"
+drf-yasg = "*"
+django-cors-headers = "*"
+requests = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.13"

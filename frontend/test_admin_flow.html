@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Admin Flow - CuraTime</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Test de Connexion Admin - CuraTime</h1>
+        
+        <div class="test-section info">
+            <h3>📋 Informations de Test</h3>
+            <p><strong>Email:</strong> admin@curatime.com</p>
+            <p><strong>Mot de passe:</strong> admin123</p>
+            <p><strong>URL Backend:</strong> http://127.0.0.1:8000/api/admin/login/</p>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Tests Automatiques</h3>
+            <button onclick="testBackendAPI()">Test API Backend</button>
+            <button onclick="testLocalStorage()">Test LocalStorage</button>
+            <button onclick="clearStorage()">Vider LocalStorage</button>
+            <button onclick="simulateLogin()">Simuler Connexion</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Résultats</h3>
+            <div id="results"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Logs</h3>
+            <div id="logs" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logsDiv = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            logsDiv.textContent += `[${timestamp}] ${message}\n`;
+            console.log(message);
+        }
+
+        function showResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-section ${type}`;
+            div.innerHTML = message;
+            resultsDiv.appendChild(div);
+        }
+
+        async function testBackendAPI() {
+            log('🔄 Test de l\'API Backend...');
+            
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/admin/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@curatime.com',
+                        password: 'admin123'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('✅ API Backend fonctionne');
+                    showResult(`
+                        <h4>✅ API Backend - Succès</h4>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>User ID:</strong> ${data.user_id}</p>
+                        <p><strong>Email:</strong> ${data.email}</p>
+                        <p><strong>Rôle:</strong> ${data.user_role}</p>
+                        <p><strong>Token:</strong> ${data.access ? 'Présent' : 'Absent'}</p>
+                    `, 'success');
+                } else {
+                    log('❌ Erreur API Backend: ' + response.status);
+                    showResult(`
+                        <h4>❌ API Backend - Erreur</h4>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Message:</strong> ${JSON.stringify(data)}</p>
+                    `, 'error');
+                }
+            } catch (error) {
+                log('❌ Erreur réseau: ' + error.message);
+                showResult(`
+                    <h4>❌ Erreur Réseau</h4>
+                    <p>${error.message}</p>
+                    <p>Vérifiez que le serveur backend est démarré sur http://127.0.0.1:8000</p>
+                `, 'error');
+            }
+        }
+
+        function testLocalStorage() {
+            log('🔄 Test du LocalStorage...');
+            
+            const keys = ['authToken', 'refreshToken', 'loginResponse', 'user', 'userType', 'token', 'refresh_token'];
+            let found = [];
+            let missing = [];
+            
+            keys.forEach(key => {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    found.push(`${key}: ${value.length > 50 ? value.substring(0, 50) + '...' : value}`);
+                } else {
+                    missing.push(key);
+                }
+            });
+            
+            showResult(`
+                <h4>📦 État du LocalStorage</h4>
+                <p><strong>Clés trouvées:</strong></p>
+                <ul>${found.map(item => `<li>${item}</li>`).join('')}</ul>
+                <p><strong>Clés manquantes:</strong></p>
+                <ul>${missing.map(item => `<li>${item}</li>`).join('')}</ul>
+            `, found.length > 0 ? 'success' : 'info');
+            
+            log(`📦 LocalStorage: ${found.length} clés trouvées, ${missing.length} manquantes`);
+        }
+
+        function clearStorage() {
+            log('🧹 Nettoyage du LocalStorage...');
+            localStorage.clear();
+            showResult('<h4>🧹 LocalStorage vidé</h4>', 'info');
+            log('✅ LocalStorage vidé');
+        }
+
+        async function simulateLogin() {
+            log('🎭 Simulation de connexion admin...');
+            
+            try {
+                // Simuler la réponse de l'API
+                const mockResponse = {
+                    access: 'mock_access_token_' + Date.now(),
+                    refresh: 'mock_refresh_token_' + Date.now(),
+                    user_id: 11,
+                    email: 'admin@curatime.com',
+                    first_name: 'Admin',
+                    last_name: 'System',
+                    user_role: 'admin',
+                    is_active: true,
+                    is_staff: true,
+                    is_superuser: true
+                };
+
+                // Stocker comme le fait la page de connexion
+                localStorage.setItem('authToken', mockResponse.access);
+                localStorage.setItem('refreshToken', mockResponse.refresh);
+                localStorage.setItem('token', mockResponse.access);
+                localStorage.setItem('refresh_token', mockResponse.refresh);
+                
+                const loginResponse = {
+                    ...mockResponse
+                };
+                
+                localStorage.setItem('loginResponse', JSON.stringify(loginResponse));
+                localStorage.setItem('user', JSON.stringify(loginResponse));
+                localStorage.setItem('userType', 'admin');
+
+                log('✅ Simulation terminée');
+                showResult(`
+                    <h4>🎭 Simulation de Connexion - Succès</h4>
+                    <p>Données stockées dans LocalStorage</p>
+                    <p><strong>Prochaine étape:</strong> Aller sur <a href="http://localhost:3000/admin/dashboard" target="_blank">http://localhost:3000/admin/dashboard</a></p>
+                `, 'success');
+                
+                // Test automatique du localStorage après simulation
+                setTimeout(testLocalStorage, 500);
+                
+            } catch (error) {
+                log('❌ Erreur simulation: ' + error.message);
+                showResult(`<h4>❌ Erreur Simulation</h4><p>${error.message}</p>`, 'error');
+            }
+        }
+
+        // Test initial au chargement
+        window.onload = function() {
+            log('🚀 Page de test chargée');
+            testLocalStorage();
+        };
+    </script>
+</body>
+</html>
