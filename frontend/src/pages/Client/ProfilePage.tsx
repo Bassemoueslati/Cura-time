@@ -53,18 +53,36 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem 1rem' }}>
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{
-          fontSize: '2.5rem',
-          fontWeight: 'bold',
-          color: '#111827',
-          marginBottom: '0.5rem'
-        }}>
-          Mon Profil
-        </h1>
-        <p style={{ color: '#6b7280', fontSize: '1.125rem' }}>
-          Gérez vos informations personnelles
-        </p>
+      <div style={{ marginBottom: '2rem', display:'flex', alignItems:'center', justifyContent:'space-between', gap: '1rem' }}>
+        <div>
+          <h1 style={{
+            fontSize: '2.5rem',
+            fontWeight: 'bold',
+            color: '#111827',
+            marginBottom: '0.5rem'
+          }}>
+            Mon Profil
+          </h1>
+          <p style={{ color: '#6b7280', fontSize: '1.125rem' }}>
+            Gérez vos informations personnelles
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => window.history.length > 1 ? window.history.back() : (window.location.href = '/dashboard')}
+          style={{
+            padding: '.6rem .9rem',
+            border: '1px solid #e5e7eb',
+            borderRadius: '.5rem',
+            background: 'white',
+            fontWeight: 600,
+            cursor: 'pointer'
+          }}
+          onMouseOver={(e)=> (e.currentTarget as HTMLButtonElement).style.background = '#f8fafc'}
+          onMouseOut={(e)=> (e.currentTarget as HTMLButtonElement).style.background = 'white'}
+        >
+          ← Retour
+        </button>
       </div>
 
       <div style={{

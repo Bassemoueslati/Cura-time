@@ -871,6 +871,73 @@ class SupportContactView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class DoctorDashboardStatsView(APIView):
+    permission_classes = [IsAuthenticated, IsDoctor]
+
+    def get(self, request):
+        from django.utils import timezone
+        from django.db.models import Count
+        try:
+            doctor = Doctor.objects.get(email=request.user.email)
+        except Doctor.DoesNotExist:
+            return Response({'error': 'Profil médecin introuvable'}, status=status.HTTP_404_NOT_FOUND)
+
+        today = timezone.localdate()
+        start_week = today - timezone.timedelta(days=today.weekday())
+        end_week = start_week + timezone.timedelta(days=6)
+
+        # Total distinct patients
+        total_patients = User.objects.filter(
+            client_appointments__doctor=doctor
+        ).distinct().count()
+
+        # Today appointments
+        today_appointments = Appointment.objects.filter(
+            doctor=doctor,
+            date_time__date=today
+        ).count()
+
+        # Week appointments
+        week_appointments = Appointment.objects.filter(
+            doctor=doctor,
+            date_time__date__gte=start_week,
+            date_time__date__lte=end_week
+        ).count()
+
+        # Completed appointments
+        completed_appointments = Appointment.objects.filter(
+            doctor=doctor,
+            status='terminé'
+        ).count()
+
+        return Response({
+            'totalPatients': total_patients,
+            'todayAppointments': today_appointments,
+            'weekAppointments': week_appointments,
+            'completedAppointments': completed_appointments,
+        })
+
+class DoctorRecentAppointmentsView(APIView):
+    permission_classes = [IsAuthenticated, IsDoctor]
+
+    def get(self, request):
+        try:
+            doctor = Doctor.objects.get(email=request.user.email)
+        except Doctor.DoesNotExist:
+            return Response({'results': []})
+
+        qs = Appointment.objects.filter(doctor=doctor).order_by('-date_time')[:10]
+        results = []
+        for a in qs:
+            results.append({
+                'patient_name': f"{a.client.first_name} {a.client.last_name}".strip() or a.client.email,
+                'time': a.date_time.astimezone().strftime('%H:%M'),
+                'reason': 'Consultation',
+                'status': a.status,
+                'date': a.date_time.astimezone().strftime('%Y-%m-%d'),
+            })
+        return Response({'results': results})
+
 class DoctorMeView(APIView):
     permission_classes = [IsAuthenticated, IsDoctor]
 

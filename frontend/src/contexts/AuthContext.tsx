@@ -208,7 +208,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       const updatedUser = await authService.updateProfile(userData);
-      setUser(updatedUser);
+      // Merge non-empty fields into current user to avoid blank page due to missing keys
+      setUser((prev) => {
+        if (!prev) return updatedUser;
+        return {
+          ...prev,
+          ...Object.fromEntries(Object.entries(updatedUser as any).filter(([_, v]) => v !== undefined && v !== null)),
+        } as User;
+      });
       toast.success('Profil mis à jour avec succès !');
     } catch (error: any) {
       console.error('Profile update error:', error);

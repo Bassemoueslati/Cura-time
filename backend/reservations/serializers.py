@@ -36,7 +36,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'adresse', 'gender', 'password']
+        fields = ['id', 'user_role', 'is_active', 'is_staff', 'date_joined', 'first_name', 'last_name', 'email', 'adresse', 'gender', 'password']
+        read_only_fields = ['id', 'user_role', 'is_active', 'is_staff', 'date_joined']
         extra_kwargs = {
             # Email ne doit pas être requis pour les PATCH partiels
             'email': {'required': False},
