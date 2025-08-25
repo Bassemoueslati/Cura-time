@@ -62,7 +62,7 @@ npm start
 Démarre sur http://localhost:3000
 
 ## 🔌 API principales
-- POST `/api/client/login/`, `/api/doctors/login/`, `/api/admin/login/` (frontend utilise un login unifié et tente client → médecin → admin)
+- POST `/api/client/login/`, `/api/doctor/login/`, `/api/admin/login/` (frontend utilise un login unifié et tente client → médecin → admin)
 - GET `/api/doctors/`, `/api/doctors/{id}/`
 - GET `/api/specialties/`
 - POST `/api/appointments/` (patient)

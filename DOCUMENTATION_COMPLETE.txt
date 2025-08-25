@@ -59,6 +59,24 @@ Rendez-vous
 Support
 - POST /api/support/contact/
 
+Réinitialisation du mot de passe (par email)
+- POST /api/client/forgot-password/ { email }
+- POST /api/client/verify-code/ { email, code, new_password }
+
+Frontend:
+- Page “Mot de passe oublié” (ForgotPasswordPage) envoie l’email -> l’API renvoie un code par email.
+- Page “Réinitialiser le mot de passe” (ResetPasswordPage) prend l’email, le code et le nouveau mot de passe, puis appelle /client/verify-code/.
+- Les notifications informent l’utilisateur du succès/échec.
+
+Calendrier / Disponibilités médecin
+- Page “DoctorAvailabilityPage” pour gérer les dates et heures (UI simple, ajout/suppression, tri).
+- Le backend accepte availability au format objet ou liste (voir section 5-6).
+
+Email de support
+- Définir l’email de destination dans backend/PPG/settings.py via SUPPORT_EMAIL.
+- Exemple actuel: SUPPORT_EMAIL = 'bassemoueslati59@gmail.com'
+- Adapter EMAIL_HOST_USER/EMAIL_HOST_PASSWORD pour l’envoi SMTP.
+
 5. DISPONIBILITÉS — FORMAT ET LOGIQUE
 =====================================
 Champ: Doctor.availability (JSON) — stocke les créneaux par date.

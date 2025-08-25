@@ -59,6 +59,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const backendMsg = doctorError?.response?.data?.error || doctorError?.response?.data?.detail;
           if (status === 403) {
             toast.error(backendMsg || 'Votre compte médecin est désactivé. Veuillez contacter l’administrateur.');
+            // Mark a flag so UI can react if needed
+            localStorage.setItem('doctor_login_blocked', '1');
             throw doctorError;
           }
           // Otherwise, try admin login
@@ -97,8 +99,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       toast.success('Connexion réussie !');
     } catch (error: any) {
-      console.error('Login error:', error);
-      toast.error('Identifiants incorrects');
+      const status = error?.response?.status;
+      const backendMsg = error?.response?.data?.error || error?.response?.data?.detail;
+      if (status === 403) {
+        toast.error(backendMsg || 'Votre compte médecin est désactivé. Veuillez contacter l’administrateur.');
+      } else {
+        toast.error(backendMsg || 'Identifiants incorrects');
+      }
       throw error;
     } finally {
       setIsLoading(false);
