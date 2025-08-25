@@ -4,7 +4,7 @@
 
 ## 📋 Description
 
-CuraTime connecte les patients avec des médecins et permet la gestion complète des rendez‑vous. L’application inclut un portail patient, un espace médecin, et un panneau d’administration.
+CuraTime connecte les patients avec des médecins et permet la gestion complète des rendez‑vous. L’application inclut un portail patient, un espace médecin, et un panneau d’administration. Désormais, la connexion est unifiée: un seul écran de connexion pour les trois rôles (patient, médecin, admin) avec redirection automatique et message de rôle professionnel après authentification.
 
 ## ✨ Fonctionnalités
 
@@ -17,7 +17,7 @@ CuraTime connecte les patients avec des médecins et permet la gestion complète
 ### Médecins
 - **Connexion professionnelle**
 - **Gestion du profil** (coordonnées, bio, tarif)
-- **Gestion des disponibilités via popup** avec sélection date/heure + éditeur JSON
+- **Gestion des disponibilités** (sélecteurs date/heure clairs, sans éditeur JSON)
 - **Liste des rendez‑vous**
 
 ### Administration
@@ -62,7 +62,7 @@ npm start
 Démarre sur http://localhost:3000
 
 ## 🔌 API principales
-- POST `/api/client/login/`, `/api/doctor/login/`, `/api/admin/login/`
+- POST `/api/client/login/`, `/api/doctors/login/`, `/api/admin/login/` (frontend utilise un login unifié et tente client → médecin → admin)
 - GET `/api/doctors/`, `/api/doctors/{id}/`
 - GET `/api/specialties/`
 - POST `/api/appointments/` (patient)
@@ -72,16 +72,12 @@ Démarre sur http://localhost:3000
 - POST `/api/support/contact/`
 - GET/PATCH `/api/doctors/me/` (médecin — inclut `availability`)
 
-## 📅 Disponibilités médecin — Popup + JSON
+## 📅 Disponibilités médecin — Gestion simple
 
-Dans la page Médecin: Mon Profil (`/doctor/profile`) :
-1. Cliquez sur **Gérer les disponibilités**.
-2. Dans le popup, ajoutez une **date** et une **heure**, puis **Ajouter**.
-3. À droite, un éditeur **JSON** permet d’éditer/coller un format structuré.
-4. Boutons:
-   - **Charger JSON**: applique le JSON vers la liste
-   - **Mettre à jour JSON**: génère le JSON depuis la liste
-   - **Fermer**: ferme le popup
+Dans la page Médecin: Mes disponibilités (`/doctor/availability`) :
+1. Sélectionnez une **date** et une **heure**, puis cliquez **Ajouter**.
+2. Supprimez un créneau ou une date via les boutons de suppression.
+3. Cliquez **Enregistrer** pour persister.
 
 Formats acceptés par `/api/doctors/me/` (PATCH `availability`):
 ```json
@@ -102,9 +98,10 @@ Ou bien:
 }
 ```
 
-## 🎨 UI — Pied de page
-- Suppression des sections: **Liens rapides** et **Support**.
-- Icônes **Facebook**, **Twitter**, **LinkedIn** rendues en **icônes statiques** (pas de lien).
+## 🎨 UI — Barre haute et pied de page
+- Barre haute: **CuraTime** + boutons **Accueil** et **Support** + bouton unique **Connexion** (si non connecté) ou menu utilisateur + **Déconnexion**.
+- Connexion unifiée depuis `/login` pour tous les rôles. Les pages dédiées `/doctor/login` et `/admin/login` restent accessibles via liens secondaires.
+- Pied de page: sections épurées et icônes sociales statiques.
 
 ## 🔒 Sécurité
 - Authentification **JWT**

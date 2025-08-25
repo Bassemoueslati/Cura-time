@@ -166,10 +166,10 @@ const DoctorDashboard: React.FC = () => {
               textAlign: 'center'
             }}>
               <div style={{ fontSize: '2rem', fontWeight: '700', color: '#10b981' }}>
-                {stats.todayAppointments}
+                {stats.weekAppointments}
               </div>
               <div style={{ fontSize: '0.875rem', color: '#064e3b' }}>
-                RDV Aujourd'hui
+                RDV Cette Semaine
               </div>
             </div>
             <div style={{
@@ -426,14 +426,14 @@ const DoctorDashboard: React.FC = () => {
                   color: '#1e293b',
                   margin: 0
                 }}>
-                  Mes Patients
+                  Patients
                 </h3>
                 <p style={{
                   fontSize: '0.875rem',
                   color: '#64748b',
                   margin: 0
                 }}>
-                  {stats.totalPatients} patients
+                  Accédez à la liste des rendez-vous et aux informations du jour
                 </p>
               </div>
             </div>
@@ -488,7 +488,7 @@ const DoctorDashboard: React.FC = () => {
                   color: '#64748b',
                   margin: 0
                 }}>
-                  {stats.todayAppointments} aujourd'hui
+                  {stats.weekAppointments} cette semaine
                 </p>
               </div>
             </div>

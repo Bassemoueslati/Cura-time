@@ -6,7 +6,7 @@ import { UserLogin } from '../../types';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
 
 const LoginPage: React.FC = () => {
-  const { loginClient, isLoading } = useAuth();
+  const { login, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
@@ -17,14 +17,32 @@ const LoginPage: React.FC = () => {
     formState: { errors },
   } = useForm<UserLogin>();
 
-  const from = location.state?.from?.pathname || '/dashboard';
+  const from = location.state?.from?.pathname || null;
 
   const onSubmit = async (data: UserLogin) => {
     try {
-      await loginClient(data);
-      navigate(from, { replace: true });
+      // Unified login: tries client, doctor, then admin
+      await login(data);
+
+      // Read role from stored user
+      const stored = localStorage.getItem('loginResponse');
+      const role = stored ? (JSON.parse(stored).user_role || '') : '';
+
+      // Professional role message
+      if (role === 'client') {
+        (window as any).toast?.success?.('Bienvenue, vous êtes connecté en tant que patient.');
+        navigate(from || '/dashboard', { replace: true });
+      } else if (role === 'doctor') {
+        (window as any).toast?.success?.('Bienvenue, vous êtes connecté en tant que médecin.');
+        navigate(from || '/doctor/dashboard', { replace: true });
+      } else if (role === 'admin') {
+        (window as any).toast?.success?.('Bienvenue, vous êtes connecté en tant qu’administrateur.');
+        navigate(from || '/admin/dashboard', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
     } catch (error) {
-      // Error is handled by the auth context
+      // Error already handled by context
     }
   };
 
@@ -70,7 +88,7 @@ const LoginPage: React.FC = () => {
             marginBottom: '0.5rem',
             fontFamily: 'Inter, sans-serif'
           }}>
-            Connexion Patient
+            Connexion
           </h1>
           <p style={{
             color: '#64748b',
@@ -87,7 +105,7 @@ const LoginPage: React.FC = () => {
               onMouseOver={(e) => e.currentTarget.style.color = '#2563eb'}
               onMouseOut={(e) => e.currentTarget.style.color = '#3b82f6'}
             >
-              créez un nouveau compte
+              créez un compte patient
             </Link>
           </p>
         </div>
@@ -331,69 +349,70 @@ const LoginPage: React.FC = () => {
             <p style={{
               fontSize: '0.875rem',
               color: '#64748b',
-              marginBottom: '0.5rem'
+              marginBottom: '0.75rem'
             }}>
-              Vous êtes médecin ?
+              Autres options de connexion
             </p>
-            <Link
-              to="/doctor/login"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                color: '#3b82f6',
-                textDecoration: 'none',
-                fontWeight: '600',
-                fontSize: '0.875rem',
-                padding: '0.5rem 1rem',
-                borderRadius: '0.375rem',
-                border: '1px solid #3b82f6',
-                transition: 'all 0.2s'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.backgroundColor = '#3b82f6';
-                e.currentTarget.style.color = 'white';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = '#3b82f6';
-              }}
-            >
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 717.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/>
-              </svg>
-              Connexion médecin
-            </Link>
-
-            <Link
-              to="/admin/login"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                color: '#7c3aed',
-                textDecoration: 'none',
-                fontWeight: '600',
-                fontSize: '0.875rem',
-                padding: '0.5rem 1rem',
-                borderRadius: '0.375rem',
-                border: '1px solid #7c3aed',
-                transition: 'all 0.2s'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.backgroundColor = '#7c3aed';
-                e.currentTarget.style.color = 'white';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = '#7c3aed';
-              }}
-            >
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                <path fillRule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" clipRule="evenodd"/>
-              </svg>
-              Connexion admin
-            </Link>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link
+                to="/doctor/login"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  color: '#3b82f6',
+                  textDecoration: 'none',
+                  fontWeight: '600',
+                  fontSize: '0.875rem',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '0.375rem',
+                  border: '1px solid #3b82f6',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.backgroundColor = '#3b82f6';
+                  e.currentTarget.style.color = 'white';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#3b82f6';
+                }}
+              >
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 717.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/>
+                </svg>
+                Connexion médecin
+              </Link>
+              <Link
+                to="/admin/login"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  color: '#7c3aed',
+                  textDecoration: 'none',
+                  fontWeight: '600',
+                  fontSize: '0.875rem',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '0.375rem',
+                  border: '1px solid #7c3aed',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.backgroundColor = '#7c3aed';
+                  e.currentTarget.style.color = 'white';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#7c3aed';
+                }}
+              >
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                  <path fillRule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" clipRule="evenodd"/>
+                </svg>
+                Connexion admin
+              </Link>
+            </div>
           </div>
         </form>
       </div>

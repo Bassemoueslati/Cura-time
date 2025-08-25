@@ -169,9 +169,7 @@ const DoctorProfilePage: React.FC = () => {
         {/* Disponibilités - bouton pour ouvrir le popup */}
         <div style={{ marginTop: '1.5rem', borderTop: '1px solid #e5e7eb', paddingTop: '1rem' }}>
           <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '.5rem' }}>Disponibilités</h2>
-          <button type="button" onClick={() => setShowAvailModal(true)} style={{ background: 'linear-gradient(135deg, #6366f1 0%, #2563eb 100%)', color: 'white', padding: '.6rem 1rem', border: 0, borderRadius: '.6rem', fontWeight: 700, boxShadow: '0 6px 12px rgba(37, 99, 235, 0.2)' }}>
-            Gérer les disponibilités
-          </button>
+          {/* Bouton supprimé selon demande */}
         </div>
 
         {/* Modal de gestion des disponibilités */}

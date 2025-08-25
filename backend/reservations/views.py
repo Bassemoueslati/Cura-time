@@ -295,9 +295,19 @@ class DoctorCreateView(generics.CreateAPIView):
     serializer_class = DoctorSerializer
 
 class DoctorUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdmin]
     queryset = Doctor.objects.all()
     serializer_class = DoctorSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        doctor = self.get_object()
+        # If a linked user exists, delete the user (will cascade and remove the doctor)
+        linked_user = doctor.user
+        if linked_user:
+            linked_user.delete()
+            return Response(status=204)
+        # Otherwise, delete the doctor record only
+        return super().destroy(request, *args, **kwargs)
 
 class ClientAppointmentUpdateView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
@@ -461,6 +471,65 @@ class AdminDoctorsListView(APIView):
 
         print(f"DEBUG: Nombre de médecins retournés: {len(doctors_data)}")
         return Response(doctors_data)
+
+    def post(self, request):
+        """Créer un nouveau médecin (endpoint: POST /api/admin/doctors/)"""
+        try:
+            data = request.data
+
+            # Vérifier les champs obligatoires
+            required_fields = ['first_name', 'last_name', 'email', 'password', 'specialization']
+            for field in required_fields:
+                if not data.get(field):
+                    return Response({'error': f'Le champ {field} est obligatoire'}, status=400)
+
+            # Vérifier email unique
+            if User.objects.filter(email=data['email']).exists():
+                return Response({'error': 'Un utilisateur avec cet email existe déjà'}, status=400)
+
+            # Récupérer la spécialité (par nom)
+            try:
+                specialty = Specialty.objects.get(name=data['specialization'])
+            except Specialty.DoesNotExist:
+                return Response({'error': 'Spécialité non trouvée'}, status=400)
+
+            # Créer l'utilisateur
+            user = User.objects.create_user(
+                email=data['email'],
+                password=data['password'],
+                first_name=data['first_name'],
+                last_name=data['last_name'],
+                user_role='doctor'
+            )
+
+            # Créer le médecin
+            doctor = Doctor.objects.create(
+                user=user,
+                first_name=data['first_name'],
+                last_name=data['last_name'],
+                email=data['email'],
+                phone=data.get('phone', ''),
+                specialization=specialty,
+                consultation_fee=data.get('consultation_fee', 0),
+                bio=data.get('bio', '')
+            )
+
+            return Response({
+                'message': 'Médecin créé avec succès',
+                'doctor': {
+                    'id': doctor.id,
+                    'first_name': doctor.first_name,
+                    'last_name': doctor.last_name,
+                    'email': doctor.email,
+                    'specialization': doctor.specialization.name,
+                    'phone': doctor.phone,
+                    'consultation_fee': doctor.consultation_fee,
+                    'bio': doctor.bio,
+                    'is_active': user.is_active
+                }
+            }, status=201)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
 
 class AdminDoctorToggleStatusView(APIView):
     permission_classes = [IsAuthenticated, IsAdmin]

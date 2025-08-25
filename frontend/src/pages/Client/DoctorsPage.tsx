@@ -108,36 +108,57 @@ const DoctorsPage: React.FC = () => {
           padding: '3rem 1rem',
           textAlign: 'center'
         }}>
-          <div style={{
-            display: 'inline-block',
-            padding: '0.5rem 1rem',
-            backgroundColor: '#dbeafe',
-            color: '#1e40af',
-            borderRadius: '2rem',
-            fontSize: '0.875rem',
-            fontWeight: '600',
-            marginBottom: '1rem'
-          }}>
-            🩺 Équipe médicale
+          <div style={{ display: 'flex', alignItems:'center', justifyContent:'space-between', gap:'1rem' }}>
+            <div style={{ textAlign:'left' }}>
+              <div style={{
+                display: 'inline-block',
+                padding: '0.5rem 1rem',
+                backgroundColor: '#dbeafe',
+                color: '#1e40af',
+                borderRadius: '2rem',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                marginBottom: '1rem'
+              }}>
+                🩺 Équipe médicale
+              </div>
+              <h1 style={{
+                fontSize: '2.5rem',
+                fontWeight: '800',
+                color: '#1e293b',
+                marginBottom: '1rem',
+                fontFamily: 'Inter, sans-serif'
+              }}>
+                Nos Médecins Spécialistes
+              </h1>
+              <p style={{
+                fontSize: '1.125rem',
+                color: '#64748b',
+                maxWidth: '600px',
+                margin: 0,
+                lineHeight: '1.6'
+              }}>
+                Trouvez le spécialiste qu'il vous faut parmi notre équipe de médecins qualifiés et expérimentés
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => window.history.length > 1 ? window.history.back() : (window.location.href = '/dashboard')}
+              style={{
+                padding: '.6rem .9rem',
+                border: '1px solid #e5e7eb',
+                borderRadius: '.5rem',
+                background: 'white',
+                fontWeight: 600,
+                cursor: 'pointer',
+                height: '2.5rem'
+              }}
+              onMouseOver={(e)=> (e.currentTarget as HTMLButtonElement).style.background = '#f8fafc'}
+              onMouseOut={(e)=> (e.currentTarget as HTMLButtonElement).style.background = 'white'}
+            >
+              ← Retour
+            </button>
           </div>
-          <h1 style={{
-            fontSize: '2.5rem',
-            fontWeight: '800',
-            color: '#1e293b',
-            marginBottom: '1rem',
-            fontFamily: 'Inter, sans-serif'
-          }}>
-            Nos Médecins Spécialistes
-          </h1>
-          <p style={{
-            fontSize: '1.125rem',
-            color: '#64748b',
-            maxWidth: '600px',
-            margin: '0 auto',
-            lineHeight: '1.6'
-          }}>
-            Trouvez le spécialiste qu'il vous faut parmi notre équipe de médecins qualifiés et expérimentés
-          </p>
         </div>
       </div>
 

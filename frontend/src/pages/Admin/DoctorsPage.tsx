@@ -481,6 +481,38 @@ const AdminDoctorsPage: React.FC = () => {
                             {doctor.is_active ? 'Désactiver' : 'Activer'}
                           </button>
 
+                          <button
+                            onClick={async () => {
+                              if (!window.confirm('Supprimer ce médecin ? Cette action est irréversible.')) return;
+                              try {
+                                await apiService.delete(`/admin/doctors/${doctor.id}/`);
+                                setDoctors(prev => prev.filter(d => d.id !== doctor.id));
+                                toast.success('Médecin supprimé avec succès');
+                              } catch (err: any) {
+                                toast.error(err?.response?.data?.error || 'Erreur lors de la suppression');
+                              }
+                            }}
+                            style={{
+                              padding: '0.5rem',
+                              backgroundColor: '#fee2e2',
+                              color: '#dc2626',
+                              border: '1px solid #fecaca',
+                              borderRadius: '0.375rem',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s'
+                            }}
+                            onMouseOver={(e) => {
+                              e.currentTarget.style.backgroundColor = '#dc2626';
+                              e.currentTarget.style.color = 'white';
+                            }}
+                            onMouseOut={(e) => {
+                              e.currentTarget.style.backgroundColor = '#fee2e2';
+                              e.currentTarget.style.color = '#dc2626';
+                            }}
+                          >
+                            Supprimer
+                          </button>
+
 
                         </div>
                       </td>

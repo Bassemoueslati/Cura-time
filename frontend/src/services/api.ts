@@ -40,11 +40,19 @@ class ApiService {
       },
       (error) => {
         if (error.response?.status === 401) {
-          // Do NOT auto-logout on public pages. Only redirect if user is in protected areas.
           const currentPath = window.location.pathname;
           const isProtected = currentPath.startsWith('/admin') || currentPath.startsWith('/doctor') || currentPath.startsWith('/dashboard') || currentPath.startsWith('/appointments') || currentPath.startsWith('/profile');
+          // For protected routes: fully logout and show session expired
           if (isProtected) {
-            // Keep tokens to avoid wiping session unexpectedly; just redirect to the proper login
+            localStorage.removeItem('token');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('userType');
+            localStorage.removeItem('loginResponse');
+            toast.error('Session expirée. Vous avez été déconnecté.');
+            // Redirect to appropriate login
             if (currentPath.startsWith('/admin')) {
               window.location.href = '/admin/login';
             } else if (currentPath.startsWith('/doctor')) {
@@ -52,6 +60,7 @@ class ApiService {
             } else {
               window.location.href = '/login';
             }
+            return Promise.reject(error);
           }
         }
         

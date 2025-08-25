@@ -244,7 +244,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Rediriger vers la page d'accueil après un court délai
     setTimeout(() => {
       window.location.href = '/';
-    }, 1000);
+    }, 600);
   };
 
   const value: AuthContextType = {

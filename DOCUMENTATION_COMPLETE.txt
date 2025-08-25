@@ -81,21 +81,17 @@ Règles de validation (backend):
 - times: strings "HH:MM"
 - support "times" ou alias "slots"
 
-6. UI DISPONIBILITÉS — POPUP PROFESSIONNEL
-==========================================
-Emplacement: Frontend > /doctor/profile (DoctorProfilePage.tsx)
+6. UI DISPONIBILITÉS — GESTION SIMPLE
+=====================================
+Emplacement: Frontend > /doctor/availability (DoctorAvailabilityPage.tsx)
 
 Fonctionnement:
-- Bouton "Gérer les disponibilités" ouvre un popup (overlay).
-- Colonne gauche: ajout de créneaux via Date + Heure, liste par date, suppression de créneau/date.
-- Colonne droite: éditeur JSON avec actions:
-  - "Charger JSON": parse le contenu vers la liste
-  - "Mettre à jour JSON": génère le JSON depuis la liste
-  - Exemple fourni et erreurs de parsing affichées
+- Ajout de créneaux via Date + Heure, liste par date, suppression de créneau/date.
+- Plus d'éditeur JSON dans l'UI; le backend accepte toujours l'objet ou la liste.
 
 Cycle de sauvegarde:
-- Dans le formulaire principal, le bouton "Enregistrer" envoie `availability` (liste) au backend.
-- Le backend accepte liste/objet et normalise en objet.
+- Bouton "Enregistrer" envoie `availability` (objet dates -> liste d'heures) au backend.
+- Le backend normalise et valide formats (YYYY-MM-DD / HH:MM).
 
 7. INSTALLATION LOCALE
 ======================
