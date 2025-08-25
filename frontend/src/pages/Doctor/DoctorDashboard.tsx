@@ -384,60 +384,7 @@ const DoctorDashboard: React.FC = () => {
           gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
           gap: '1.5rem'
         }}>
-          {/* Patients Management */}
-          <div
-            onClick={() => navigate('/doctor/patients')}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '1rem',
-              padding: '1.5rem',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-              border: '1px solid #e2e8f0',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-              <div style={{
-                width: '3rem',
-                height: '3rem',
-                backgroundColor: '#dbeafe',
-                borderRadius: '0.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <svg width="24" height="24" fill="#3b82f6" viewBox="0 0 24 24">
-                  <path d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z"/>
-                </svg>
-              </div>
-              <div>
-                <h3 style={{
-                  fontSize: '1.125rem',
-                  fontWeight: '600',
-                  color: '#1e293b',
-                  margin: 0
-                }}>
-                  Patients
-                </h3>
-                <p style={{
-                  fontSize: '0.875rem',
-                  color: '#64748b',
-                  margin: 0
-                }}>
-                  Accédez à la liste des rendez-vous et aux informations du jour
-                </p>
-              </div>
-            </div>
-          </div>
+
 
           {/* Appointments Management */}
           <div

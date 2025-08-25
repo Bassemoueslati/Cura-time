@@ -49,12 +49,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       let response;
       try {
         response = await authService.loginClient(credentials);
-      } catch (clientError) {
+      } catch (clientError: any) {
         // If client login fails, try doctor login
         try {
           response = await authService.loginDoctor(credentials);
-        } catch (doctorError) {
-          // If both fail, try admin login
+        } catch (doctorError: any) {
+          // If doctor account is disabled (403), show clear message and stop
+          const status = doctorError?.response?.status;
+          const backendMsg = doctorError?.response?.data?.error || doctorError?.response?.data?.detail;
+          if (status === 403) {
+            toast.error(backendMsg || 'Votre compte médecin est désactivé. Veuillez contacter l’administrateur.');
+            throw doctorError;
+          }
+          // Otherwise, try admin login
           const adminResponse = await authService.loginAdmin(credentials);
           setToken(adminResponse.access);
           setUser({
