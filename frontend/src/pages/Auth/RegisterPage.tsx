@@ -130,7 +130,7 @@ const RegisterPage: React.FC = () => {
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: window.innerWidth > 640 ? '1fr 1fr' : '1fr', 
-            gap: '1rem' 
+            gap: '3rem' 
           }}>
             {/* First Name */}
             <div>
@@ -241,7 +241,7 @@ const RegisterPage: React.FC = () => {
                 placeholder="votre@email.com"
                 style={{
                   ...inputStyle(!!errors.email),
-                  paddingRight: '3rem'
+                  paddingRight: '1rem'
                 }}
                 onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
                 onBlur={(e) => Object.assign(e.target.style, inputBlurStyle)}
@@ -280,7 +280,7 @@ const RegisterPage: React.FC = () => {
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: window.innerWidth > 640 ? '1fr 1fr' : '1fr', 
-            gap: '1rem' 
+            gap: '3rem' 
           }}>
             {/* Password */}
             <div>
@@ -306,7 +306,7 @@ const RegisterPage: React.FC = () => {
                   placeholder="Mot de passe"
                   style={{
                     ...inputStyle(!!errors.password),
-                    paddingRight: '3rem'
+                    paddingRight: '1rem'
                   }}
                   onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
                   onBlur={(e) => Object.assign(e.target.style, inputBlurStyle)}
@@ -345,7 +345,7 @@ const RegisterPage: React.FC = () => {
                   color: '#ef4444',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.25rem'
+                  gap: '1rem'
                 }}>
                   <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
                     <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd"/>
@@ -377,7 +377,7 @@ const RegisterPage: React.FC = () => {
                   placeholder="Confirmer le mot de passe"
                   style={{
                     ...inputStyle(!!errors.confirmPassword),
-                    paddingRight: '3rem'
+                    paddingRight: '1rem'
                   }}
                   onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
                   onBlur={(e) => Object.assign(e.target.style, inputBlurStyle)}
@@ -387,7 +387,7 @@ const RegisterPage: React.FC = () => {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   style={{
                     position: 'absolute',
-                    right: '0.75rem',
+                    right: '0.0025rem',
                     top: '50%',
                     transform: 'translateY(-50%)',
                     background: 'none',
@@ -416,7 +416,7 @@ const RegisterPage: React.FC = () => {
                   color: '#ef4444',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.25rem'
+                  gap: '1rem'
                 }}>
                   <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
                     <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd"/>
