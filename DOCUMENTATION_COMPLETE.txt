@@ -4,369 +4,159 @@
 
 1. PRÉSENTATION GÉNÉRALE
 ========================
+CuraTime est une plateforme web de gestion de rendez-vous médicaux (React + Django).
 
-CuraTime est une plateforme web moderne de gestion de rendez-vous médicaux 
-développée avec React (frontend) et Django (backend). Elle permet aux patients 
-de prendre rendez-vous avec des médecins spécialistes en ligne.
+Objectifs:
+- Simplifier la réservation de consultations
+- Offrir un portail patient, un espace médecin et une administration
+- Gérer les disponibilités et le cycle complet des rendez-vous
 
-OBJECTIFS :
-- Simplifier la prise de rendez-vous médicaux
-- Offrir une interface moderne et intuitive
-- Gérer les disponibilités des médecins
-- Suivre l'historique des consultations
-- Administrer les utilisateurs et les données
+2. ARCHITECTURE
+===============
+Frontend (React + TypeScript)
+- React 18, React Router v6, Context API
+- Axios, React Toastify
+- Styles inline (CSS-in-JS minimal)
 
-2. ARCHITECTURE TECHNIQUE
-=========================
+Backend (Django + DRF)
+- Django 4.x, Django REST Framework
+- Authentification JWT
+- Base SQLite par défaut (remplaçable par PostgreSQL)
 
-FRONTEND (React + TypeScript)
------------------------------
-- Framework : React 18.x avec TypeScript
-- Routing : React Router DOM v6
-- État global : Context API
-- Formulaires : React Hook Form
-- HTTP Client : Axios
-- Notifications : React Toastify
-- Styling : CSS-in-JS (inline styles)
-
-BACKEND (Django + PostgreSQL)
-------------------------------
-- Framework : Django 4.x
-- API : Django REST Framework
-- Base de données : PostgreSQL 15.x
-- Authentification : JWT (JSON Web Tokens)
-- CORS : django-cors-headers
-- Environnement : Pipenv
-
-3. STRUCTURE DES DONNÉES
-========================
-
-MODÈLES PRINCIPAUX :
-
-User (Utilisateur)
-------------------
-- id : Identifiant unique
-- email : Adresse email (unique)
-- first_name : Prénom
-- last_name : Nom
-- user_role : Rôle (client/doctor/admin)
-- adresse : Adresse complète
-- gender : Genre (M/F/Autre)
-- is_active : Compte actif
-- is_staff : Accès admin
-- date_joined : Date d'inscription
-
-Specialty (Spécialité)
-----------------------
-- id : Identifiant unique
-- name : Nom de la spécialité
-- description : Description détaillée
-
-Doctor (Médecin)
-----------------
-- id : Identifiant unique
-- user : Référence vers User (ForeignKey)
-- first_name : Prénom
-- last_name : Nom
-- email : Email professionnel
-- phone : Téléphone
-- address : Adresse du cabinet
-- city : Ville
-- state : Région/État
-- zip_code : Code postal
-- specialization : Spécialité (ForeignKey)
-- availability : Disponibilités (JSON)
-- bio : Biographie
-- photo : Photo de profil
-- consultation_fee : Tarif consultation
-
-Appointment (Rendez-vous)
--------------------------
-- id : Identifiant unique
-- client : Patient (ForeignKey vers User)
-- doctor : Médecin (ForeignKey vers Doctor)
-- date_time : Date et heure du RDV
-- status : Statut (pending/confirmé/terminé)
-- created_at : Date de création
-- updated_at : Date de modification
-
-4. API ENDPOINTS
-================
-
-AUTHENTIFICATION
-----------------
-POST /api/client/login/          - Connexion patient
-POST /api/doctor/login/          - Connexion médecin
-POST /api/admin/login/           - Connexion admin
-POST /api/register/              - Inscription patient
-POST /api/client/forgot-password/ - Mot de passe oublié
-POST /api/client/verify-code/    - Vérification code reset
-
-MÉDECINS
---------
-GET  /api/doctors/               - Liste tous les médecins
-GET  /api/doctors/{id}/          - Détail d'un médecin
-GET  /api/doctors/by-specialty/{id}/ - Médecins par spécialité
-GET  /api/specialties/           - Liste des spécialités
-
-RENDEZ-VOUS
------------
-POST /api/appointments/          - Créer un rendez-vous
-GET  /api/appointments/list/     - RDV du client connecté
-GET  /api/doctors/appointment/   - RDV du médecin connecté
-PATCH /api/appointments/update/{id}/ - Modifier un RDV
-DELETE /api/appointments/{id}/delete/ - Supprimer un RDV
-
-PROFIL
-------
-PUT  /api/client/update-profile/ - Mettre à jour le profil
-
-ADMINISTRATION
---------------
-GET  /api/admin/appointments/list/ - Tous les RDV (admin)
-POST /api/admin/doctors/         - Créer un médecin
-PUT  /api/admin/doctors/{id}/    - Modifier un médecin
-DELETE /api/admin/doctors/{id}/  - Supprimer un médecin
-
-5. FONCTIONNALITÉS DÉTAILLÉES
-==============================
-
-GESTION DES UTILISATEURS
--------------------------
-- Inscription avec validation des données
-- Connexion sécurisée avec JWT
-- Gestion des rôles (patient/médecin/admin)
-- Récupération de mot de passe par email
-- Modification du profil utilisateur
-
-RECHERCHE DE MÉDECINS
----------------------
-- Affichage de tous les médecins disponibles
-- Filtrage par spécialité médicale
-- Recherche par nom, ville ou spécialité
-- Affichage des informations détaillées
-- Consultation des tarifs et disponibilités
-
-SYSTÈME DE RENDEZ-VOUS
-----------------------
-- Sélection de médecin et créneaux disponibles
-- Prise de RDV en temps réel
-- Modification/annulation des RDV
-- Notifications de confirmation
-- Historique des consultations
-- Statuts des rendez-vous (en attente/confirmé/terminé)
-
-TABLEAU DE BORD
----------------
-- Vue d'ensemble des RDV à venir
-- Statistiques personnalisées
-- Accès rapide aux fonctionnalités
-- Historique des consultations
-- Gestion du profil
-
-6. SÉCURITÉ
-===========
-
-AUTHENTIFICATION
-----------------
-- Tokens JWT avec expiration
-- Hashage sécurisé des mots de passe
-- Protection contre les attaques CSRF
-- Validation des données côté serveur
-
-AUTORISATION
-------------
-- Contrôle d'accès basé sur les rôles
-- Routes protégées selon les permissions
-- Isolation des données par utilisateur
-- Vérification des droits d'accès
-
-PROTECTION DES DONNÉES
-----------------------
-- Validation stricte des entrées
-- Échappement des données affichées
-- Configuration CORS sécurisée
-- Gestion des erreurs sans exposition
-
-7. INTERFACE UTILISATEUR
-========================
-
-DESIGN RESPONSIVE
------------------
-- Adaptation automatique aux écrans
-- Navigation optimisée mobile/desktop
-- Composants réutilisables
-- Thème cohérent et professionnel
-
-EXPÉRIENCE UTILISATEUR
-----------------------
-- Interface intuitive et claire
-- Feedback visuel immédiat
-- Gestion des états de chargement
-- Messages d'erreur explicites
-- Notifications toast informatives
-
-ACCESSIBILITÉ
--------------
-- Contraste suffisant des couleurs
-- Navigation au clavier possible
-- Labels appropriés pour les formulaires
-- Structure sémantique HTML
-
-8. INSTALLATION ET DÉPLOIEMENT
-===============================
-
-ENVIRONNEMENT DE DÉVELOPPEMENT
--------------------------------
-1. Cloner le repository
-2. Configurer PostgreSQL (base 'PPG', user 'postgres', password 'admin1234')
-3. Backend Django :
-   - cd PPG-main
-   - pipenv install
-   - pipenv shell
-   - python manage.py migrate
-   - python manage.py runserver
-4. Frontend React :
-   - cd curatime-frontend
-   - npm install
-   - npm start
-
-DONNÉES DE TEST
----------------
-- Exécuter : python add_test_data.py
-- Comptes créés automatiquement :
-  * Patient : client@test.com / client123
-  * Médecins : dr.dupont@hospital.com / doctor123
-  * Admin : via createsuperuser
-
-PRODUCTION
-----------
-- Configurer variables d'environnement
-- Utiliser serveur web (Nginx + Gunicorn)
-- Base de données PostgreSQL dédiée
-- Certificats SSL/HTTPS
-- Optimisation des assets React
-
-9. MAINTENANCE ET ÉVOLUTIONS
-=============================
-
-MONITORING
-----------
-- Logs d'erreurs Django
-- Métriques de performance
-- Surveillance base de données
-- Alertes système
-
-SAUVEGARDES
------------
-- Sauvegarde quotidienne BDD
-- Versioning du code (Git)
-- Sauvegarde des fichiers uploadés
-- Plan de récupération
-
-ÉVOLUTIONS FUTURES
-------------------
-- Notifications push/email
-- Intégration calendrier externe
-- Paiement en ligne
-- Téléconsultation vidéo
-- Application mobile native
-- Système de rappels automatiques
-
-10. SUPPORT ET CONTACT
-======================
-
-DOCUMENTATION TECHNIQUE
-------------------------
-- Code commenté et documenté
-- Tests unitaires à implémenter
-- Documentation API avec Swagger
-- Guide d'utilisation utilisateur
-
-CONTACT DÉVELOPPEUR
--------------------
-- Email : support@curatime.com
-- GitHub : Repository du projet
-- Issues : Signalement de bugs
-- Wiki : Documentation collaborative
-
-11. TESTS ET VALIDATION
+3. MODÈLES (PRINCIPAUX)
 =======================
+User
+- email, first_name, last_name, user_role (client/doctor/admin), adresse, is_active...
 
-SCRIPTS DE TEST DISPONIBLES
-----------------------------
-- setup_complete_app.py : Configuration complète automatique
-- test_calendar_functionality.py : Test du système de calendrier
-- create_test_appointments.py : Création de RDV de test
-- update_doctor_availability.py : Mise à jour des disponibilités
+Doctor
+- user/email, phone, address, city, state, zip_code, specialization, availability (JSON), bio, consultation_fee
 
-PROCÉDURE DE TEST
------------------
-1. Exécuter setup_complete_app.py pour configuration complète
-2. Démarrer les serveurs Django et React
-3. Tester les fonctionnalités principales :
-   - Inscription/Connexion patients
-   - Connexion médecins
-   - Recherche de médecins
-   - Prise de rendez-vous
-   - Gestion des RDV
-   - Tableaux de bord
+Appointment
+- client (User), doctor (Doctor), date_time, status (pending/confirmé/terminé), created_at/updated_at
 
-VALIDATION DU CALENDRIER
-------------------------
-✅ Disponibilités médecins configurées (Lun-Ven, 9h-12h et 14h-17h)
-✅ Créneaux de 30 minutes
-✅ Prise de RDV en temps réel
-✅ Gestion des statuts (pending/confirmé/terminé)
-✅ Historique des consultations
-✅ Interface médecin pour gérer les patients
+4. ENDPOINTS CLÉS
+=================
+Auth
+- POST /api/client/login/
+- POST /api/doctor/login/
+- POST /api/admin/login/
+- POST /api/register/
 
-12. STATUT FINAL DU PROJET
-===========================
+Médecins
+- GET  /api/doctors/
+- GET  /api/doctors/{id}/
+- GET  /api/specialties/
+- GET  /api/doctors/appointment/ (médecin connecté)
+- GET  /api/doctors/me/      (profil + availability)
+- PATCH /api/doctors/me/     (mise à jour profil et availability)
 
-FONCTIONNALITÉS IMPLÉMENTÉES
------------------------------
-✅ Backend Django complet avec API REST
-✅ Frontend React moderne avec TypeScript
-✅ Authentification JWT sécurisée
-✅ Gestion des utilisateurs (patients/médecins/admin)
-✅ Système de rendez-vous fonctionnel
-✅ Calendrier médecin avec disponibilités
-✅ Recherche et filtrage des médecins
-✅ Tableaux de bord personnalisés
-✅ Gestion des profils utilisateur
-✅ Interface responsive et professionnelle
-✅ Documentation complète
-✅ Scripts de test et configuration
+Rendez-vous
+- POST   /api/appointments/
+- GET    /api/appointments/list/
+- PATCH  /api/appointments/update/{id}/
+- DELETE /api/appointments/{id}/delete/
 
-ARCHITECTURE TECHNIQUE VALIDÉE
--------------------------------
-✅ Base de données PostgreSQL configurée
-✅ Modèles Django optimisés
-✅ API REST avec permissions appropriées
-✅ Frontend React avec gestion d'état
-✅ Sécurité et validation des données
-✅ Gestion d'erreurs robuste
-✅ Design responsive et accessible
+Support
+- POST /api/support/contact/
 
-PRÊT POUR PRODUCTION
---------------------
-L'application CuraTime est maintenant complète et fonctionnelle.
-Tous les composants principaux sont implémentés et testés.
-Le système de calendrier fonctionne correctement.
-L'interface utilisateur est professionnelle et intuitive.
+5. DISPONIBILITÉS — FORMAT ET LOGIQUE
+=====================================
+Champ: Doctor.availability (JSON) — stocke les créneaux par date.
 
-PROCHAINES ÉTAPES POSSIBLES
-----------------------------
-- Notifications email/SMS
-- Intégration paiement en ligne
-- Téléconsultation vidéo
-- Application mobile
-- Système de rappels automatiques
-- Intégration calendriers externes
-- Rapports et analytics avancés
+Formats acceptés par PATCH /api/doctors/me/ (clé availability):
+1) Objet (recommandé pour stockage):
+{
+  "2025-08-25": ["09:00", "10:30"],
+  "2025-08-26": ["14:00"]
+}
+
+2) Liste (pratique pour l'UI):
+[
+  { "date": "2025-08-25", "times": ["09:00", "10:30"] },
+  { "date": "2025-08-26", "times": ["14:00"] }
+]
+
+Règles de validation (backend):
+- format date: YYYY-MM-DD
+- times: strings "HH:MM"
+- support "times" ou alias "slots"
+
+6. UI DISPONIBILITÉS — POPUP PROFESSIONNEL
+==========================================
+Emplacement: Frontend > /doctor/profile (DoctorProfilePage.tsx)
+
+Fonctionnement:
+- Bouton "Gérer les disponibilités" ouvre un popup (overlay).
+- Colonne gauche: ajout de créneaux via Date + Heure, liste par date, suppression de créneau/date.
+- Colonne droite: éditeur JSON avec actions:
+  - "Charger JSON": parse le contenu vers la liste
+  - "Mettre à jour JSON": génère le JSON depuis la liste
+  - Exemple fourni et erreurs de parsing affichées
+
+Cycle de sauvegarde:
+- Dans le formulaire principal, le bouton "Enregistrer" envoie `availability` (liste) au backend.
+- Le backend accepte liste/objet et normalise en objet.
+
+7. INSTALLATION LOCALE
+======================
+Backend (c:\Users\Bassem\Downloads\PFE-LY\backend):
+- pip install -r requirements.txt
+- python manage.py migrate
+- python manage.py runserver
+
+Frontend (c:\Users\Bassem\Downloads\PFE-LY\frontend):
+- npm install
+- npm start
+
+8. SÉCURITÉ ET RÔLES
+====================
+- JWT pour auth; permissions par rôle (IsClient, IsDoctor, IsAdmin)
+- Endpoints protégés selon contexte (ex: /api/doctors/me/)
+
+9. UI — PIED DE PAGE (MISE À JOUR)
+==================================
+- Suppression des sections "Liens rapides" et "Support".
+- Icônes Facebook/Twitter/LinkedIn statiques, non cliquables.
+
+10. BONNES PRATIQUES DISPONIBILITÉS
+===================================
+- Normaliser les heures en HH:MM (24h)
+- Éviter les doublons côté UI (vérification déjà en place)
+- Tri des dates et créneaux pour cohérence
+
+11. EXEMPLES PRATIQUES
+======================
+PATCH /api/doctors/me/ (objet):
+{
+  "availability": {
+    "2025-08-26": ["09:00", "10:30"],
+    "2025-08-27": ["14:00"]
+  }
+}
+
+PATCH /api/doctors/me/ (liste):
+{
+  "availability": [
+    { "date": "2025-08-26", "times": ["09:00", "10:30"] },
+    { "date": "2025-08-27", "times": ["14:00"] }
+  ]
+}
+
+12. ÉTAT FINAL
+==============
+- Frontend React/TS complet (patients, médecins, admin)
+- Auth JWT, profils, rendez‑vous
+- Popup de gestion des disponibilités médecin + éditeur JSON
+- API cohérente et validée
+- Footer nettoyé selon demande
+
+13. ÉVOLUTIONS CONSEILLÉES
+==========================
+- Calendrier visuel (hebdo/jour) pour les médecins (UI avancée)
+- Rappels email/SMS
+- Paiement en ligne
+- Intégration calendriers externes (Google/Microsoft)
 
 ===============================================================================
-                    CURATIME - PROJET TERMINÉ AVEC SUCCÈS
-                        Application prête pour utilisation
+                    CURATIME - FIN DE DOCUMENTATION
 ===============================================================================

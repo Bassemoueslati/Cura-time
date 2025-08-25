@@ -41,7 +41,11 @@ from .views import (
 
     # Doctor Dashboard
     DoctorDashboardStatsView,
-    DoctorRecentAppointmentsView
+    DoctorRecentAppointmentsView,
+
+    # Support & Doctor self endpoints
+    SupportContactView,
+    DoctorMeView,
 )
 
 urlpatterns = [
@@ -68,7 +72,10 @@ urlpatterns = [
 
     path('admin/appointments/update/<int:pk>/', AdminAppointmentStatusUpdateView.as_view(), name='appointment-update'),  # Admin/Client: update
     path('admin/appointments/list/', AdminAppointmentListView.as_view(), name='appointment-list-admin'),   # Admin: list all
-    path('admin/specialties/<int:pk>/', SpecialtyRetrieveUpdateDestroyView.as_view(), name='speciality-detail'),
+
+    # Public specialties list (patients & guests)
+    path('specialties/', SpecialtyListCreateView.as_view(), name='specialties-list'),
+
     path('doctors/by-specialty/<int:specialty_id>/', DoctorsBySpecialtyView.as_view(), name='doctors-by-speciality'),
     path('doctors/appointment/' , DoctorAppointmentListView.as_view(), name='doctor-appointment-list'),
     path('doctors/login/', DoctorLoginView.as_view(), name='doctor-login'),
@@ -83,7 +90,8 @@ urlpatterns = [
     path('admin/doctors/<int:doctor_id>/toggle-status/', AdminDoctorToggleStatusView.as_view(), name='admin-doctor-toggle-status'),
     path('admin/doctors/count/', AdminDoctorsCountView.as_view(), name='admin-doctors-count'),  # Debug endpoint
     path('admin/specialties/', AdminSpecialtiesListView.as_view(), name='admin-specialties-list'),
-    path('admin/specialties/<int:specialty_id>/', AdminSpecialtyDetailView.as_view(), name='admin-specialty-detail'),
+    path('admin/specialties/<int:specialty_id>/', AdminSpecialtyDetailView.as_view(), name='admin-specialty-detail'),  # DELETE only
+    path('admin/specialties/<int:pk>/', SpecialtyRetrieveUpdateDestroyView.as_view(), name='admin-specialty-update'),  # PUT/PATCH/GET by DRF generic
 
     # Doctor Dashboard
     path('doctors/dashboard/stats/', DoctorDashboardStatsView.as_view(), name='doctor-dashboard-stats'),

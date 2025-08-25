@@ -38,7 +38,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         model = User
         fields = ['first_name', 'last_name', 'email', 'adresse', 'gender', 'password']
         extra_kwargs = {
-            'email': {'required': True},
+            # Email ne doit pas être requis pour les PATCH partiels
+            'email': {'required': False},
             'first_name': {'required': False},
             'last_name': {'required': False},
             'adresse': {'required': False},
@@ -46,8 +47,11 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         }
 
     def update(self, instance, validated_data):
+        # Only update fields present in the request; ignore empty strings to avoid unintended wipes
         password = validated_data.pop('password', None)
         for attr, value in validated_data.items():
+            if value in [None, '', 'null', 'None']:
+                continue
             setattr(instance, attr, value)
         if password:
             instance.set_password(password)

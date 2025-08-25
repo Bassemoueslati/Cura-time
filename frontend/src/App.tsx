@@ -30,6 +30,7 @@ import ProfilePage from './pages/Client/ProfilePage';
 // Doctor pages
 import DoctorDashboard from './pages/Doctor/DoctorDashboard';
 import DoctorAppointmentsPage from './pages/Doctor/AppointmentsPage';
+import DoctorAvailabilityPage from './pages/Doctor/DoctorAvailabilityPage';
 
 // Admin pages
 import AdminDashboard from './pages/Admin/AdminDashboard';
@@ -88,6 +89,11 @@ function App() {
             <Route path="/doctor/profile" element={
               <ProtectedRoute requiredRole="doctor" redirectTo="/doctor/login">
                 <Layout><DoctorProfilePage /></Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/doctor/availability" element={
+              <ProtectedRoute requiredRole="doctor" redirectTo="/doctor/login">
+                <Layout><DoctorAvailabilityPage /></Layout>
               </ProtectedRoute>
             } />
 

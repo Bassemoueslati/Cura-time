@@ -18,11 +18,13 @@ class ApiService {
     this.api.interceptors.request.use(
       (config) => {
         // Try multiple token storage keys for compatibility
-        const token = localStorage.getItem('token') ||
-                     localStorage.getItem('authToken') ||
-                     localStorage.getItem('access_token');
+        // Prefer modern key first to avoid using a stale legacy token
+        const token = localStorage.getItem('authToken') ||
+                      localStorage.getItem('token') ||
+                      localStorage.getItem('access_token');
         if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
+          if (!config.headers) config.headers = {} as any;
+          (config.headers as any).Authorization = `Bearer ${token}`;
         }
         return config;
       },
@@ -38,31 +40,26 @@ class ApiService {
       },
       (error) => {
         if (error.response?.status === 401) {
-          // Token expired or invalid - clear all auth data
-          localStorage.removeItem('token');
-          localStorage.removeItem('authToken');
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
-          localStorage.removeItem('user');
-          localStorage.removeItem('userType');
-          localStorage.removeItem('loginResponse');
-
-          // Redirect based on current path
+          // Do NOT auto-logout on public pages. Only redirect if user is in protected areas.
           const currentPath = window.location.pathname;
-          if (currentPath.startsWith('/admin')) {
-            window.location.href = '/admin/login';
-          } else if (currentPath.startsWith('/doctor')) {
-            window.location.href = '/doctor/login';
-          } else {
-            window.location.href = '/login';
+          const isProtected = currentPath.startsWith('/admin') || currentPath.startsWith('/doctor') || currentPath.startsWith('/dashboard') || currentPath.startsWith('/appointments') || currentPath.startsWith('/profile');
+          if (isProtected) {
+            // Keep tokens to avoid wiping session unexpectedly; just redirect to the proper login
+            if (currentPath.startsWith('/admin')) {
+              window.location.href = '/admin/login';
+            } else if (currentPath.startsWith('/doctor')) {
+              window.location.href = '/doctor/login';
+            } else {
+              window.location.href = '/login';
+            }
           }
         }
         
-        // Show error message
+        // Show error message, but avoid duplicate noise on 401 public fetches
         const errorMessage = error.response?.data?.message || 
                            error.response?.data?.error || 
-                           'Une erreur est survenue';
-        toast.error(errorMessage);
+                           (error.response?.status === 401 ? undefined : 'Une erreur est survenue');
+        if (errorMessage) toast.error(errorMessage);
         
         return Promise.reject(error);
       }

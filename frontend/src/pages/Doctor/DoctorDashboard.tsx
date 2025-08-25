@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '../../services/apiService';
+import { useAuth } from '../../contexts/AuthContext';
 
 const DoctorDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -15,8 +16,8 @@ const DoctorDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Vérifier si l'utilisateur est connecté
-    const token = localStorage.getItem('token');
+    // Vérifier si l'utilisateur est connecté (utiliser la clé moderne d'abord)
+    const token = localStorage.getItem('authToken') || localStorage.getItem('token');
     const userType = localStorage.getItem('userType');
     const userData = localStorage.getItem('user');
 
@@ -86,56 +87,7 @@ const DoctorDashboard: React.FC = () => {
       minHeight: '100vh',
       backgroundColor: '#f8fafc'
     }}>
-      {/* Header */}
-      <header style={{
-        backgroundColor: 'white',
-        borderBottom: '1px solid #e2e8f0',
-        padding: '1rem 2rem',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          maxWidth: '1200px',
-          margin: '0 auto'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{
-              width: '3rem',
-              height: '3rem',
-              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-              borderRadius: '0.5rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
-                <path d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/>
-              </svg>
-            </div>
-            <div>
-              <h1 style={{
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                color: '#1e293b',
-                margin: 0
-              }}>
-                CuraTime Médecin
-              </h1>
-              <p style={{
-                fontSize: '0.875rem',
-                color: '#64748b',
-                margin: 0
-              }}>
-                Tableau de bord professionnel
-              </p>
-            </div>
-          </div>
-
-
-        </div>
-      </header>
+      {/* Page-specific header removed to avoid duplicated top bar; the global app Header remains visible */}
 
       {/* Main Content */}
       <main style={{
@@ -294,19 +246,7 @@ const DoctorDashboard: React.FC = () => {
                   Voir tout
                 </button>
                 <button
-                  onClick={async () => {
-                    try {
-                      const me = await apiService.get<any>('/doctors/me/');
-                      const current = me.availability || {};
-                      const input = prompt('Collez un JSON de disponibilités (ex: {"2025-08-25":["09:00","09:30"]})', JSON.stringify(current));
-                      if (!input) return;
-                      const availability = JSON.parse(input);
-                      await apiService.patch('/doctors/me/', { availability });
-                      alert('Disponibilités mises à jour.');
-                    } catch (e) {
-                      console.error(e);
-                    }
-                  }}
+                  onClick={() => navigate('/doctor/availability')}
                   style={{
                     padding: '0.5rem 1rem',
                     backgroundColor: '#10b981',
@@ -319,6 +259,7 @@ const DoctorDashboard: React.FC = () => {
                   }}
                   onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#059669'}
                   onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#10b981'}
+                  title="Gérer uniquement mes disponibilités"
                 >
                   Modifier mes disponibilités
                 </button>
@@ -380,7 +321,7 @@ const DoctorDashboard: React.FC = () => {
               color: '#1e293b',
               margin: '0 0 1.5rem 0'
             }}>
-              Prochains Rendez-vous
+              Rendez-vous
             </h3>
 
             {loading ? (
@@ -553,60 +494,7 @@ const DoctorDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Schedule Management */}
-          <div
-            onClick={() => navigate('/doctor/schedule')}
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '1rem',
-              padding: '1.5rem',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-              border: '1px solid #e2e8f0',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-              <div style={{
-                width: '3rem',
-                height: '3rem',
-                backgroundColor: '#fef3c7',
-                borderRadius: '0.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <svg width="24" height="24" fill="#f59e0b" viewBox="0 0 24 24">
-                  <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z" clipRule="evenodd"/>
-                </svg>
-              </div>
-              <div>
-                <h3 style={{
-                  fontSize: '1.125rem',
-                  fontWeight: '600',
-                  color: '#1e293b',
-                  margin: 0
-                }}>
-                  Planning
-                </h3>
-                <p style={{
-                  fontSize: '0.875rem',
-                  color: '#64748b',
-                  margin: 0
-                }}>
-                  Gérer les horaires
-                </p>
-              </div>
-            </div>
-          </div>
+          {/* Schedule Management card removed as requested */}
 
           {/* Profile Management */}
           <div

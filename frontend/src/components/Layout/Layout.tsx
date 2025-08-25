@@ -20,6 +20,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showFooter = true }) => {
         backgroundAttachment: 'fixed',
       }}
     >
+      {/* Show global header unless inside admin; prevent double header in doctor pages by keeping one consistent header */}
       <Header />
       <main className="flex-grow" style={{ backgroundColor: 'rgba(255,255,255,0.85)' }}>
         {children}

@@ -5,6 +5,11 @@ import { useAuth } from '../../contexts/AuthContext';
 const Header: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const homeTo = user?.user_role === 'doctor'
+    ? '/doctor/dashboard'
+    : user?.user_role === 'admin'
+      ? '/admin/dashboard'
+      : '/';
 
   const handleLogout = () => {
     logout();
@@ -64,6 +69,51 @@ const Header: React.FC = () => {
                   Votre santé, notre priorité
                 </div>
               </div>
+            </Link>
+          </div>
+
+          {/* Quick nav - modern, professional buttons */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Link
+              to={homeTo}
+              style={{
+                textDecoration: 'none',
+                color: '#0f172a',
+                fontWeight: 600,
+                padding: '.5rem .85rem',
+                borderRadius: '.5rem',
+                border: '1px solid #e2e8f0',
+                background: 'white',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = '#f8fafc';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = 'white';
+              }}
+            >
+              Accueil
+            </Link>
+            <Link
+              to="/support"
+              style={{
+                textDecoration: 'none',
+                color: 'white',
+                fontWeight: 700,
+                padding: '.5rem .9rem',
+                borderRadius: '.5rem',
+                background: 'linear-gradient(135deg, #6366f1 0%, #2563eb 100%)',
+                boxShadow: '0 6px 12px rgba(37, 99, 235, 0.2)'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.boxShadow = '0 8px 16px rgba(37,99,235,0.3)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.boxShadow = '0 6px 12px rgba(37, 99, 235, 0.2)';
+              }}
+            >
+              Support
             </Link>
           </div>
 

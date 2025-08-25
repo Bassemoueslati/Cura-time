@@ -160,18 +160,36 @@ const DoctorAppointmentsPage: React.FC = () => {
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{
-          fontSize: '2.5rem',
-          fontWeight: 'bold',
-          color: '#111827',
-          marginBottom: '0.5rem'
-        }}>
-          Gestion des Patients
-        </h1>
-        <p style={{ color: '#6b7280', fontSize: '1.125rem' }}>
-          Consultez et gérez vos rendez-vous patients
-        </p>
+      <div style={{ marginBottom: '2rem', display:'flex', alignItems:'center', justifyContent:'space-between', gap: '1rem' }}>
+        <div>
+          <h1 style={{
+            fontSize: '2.5rem',
+            fontWeight: 'bold',
+            color: '#111827',
+            marginBottom: '0.5rem'
+          }}>
+            Gestion des Patients
+          </h1>
+          <p style={{ color: '#6b7280', fontSize: '1.125rem' }}>
+            Consultez et gérez vos rendez-vous patients
+          </p>
+        </div>
+        <button
+          onClick={() => window.history.length > 1 ? window.history.back() : (window.location.href = '/doctor/dashboard')}
+          style={{
+            padding: '.65rem 1rem',
+            borderRadius: '.5rem',
+            border: '1px solid #e5e7eb',
+            background: 'white',
+            color: '#111827',
+            fontWeight: 600,
+            cursor: 'pointer'
+          }}
+          onMouseOver={(e)=> e.currentTarget.style.background = '#f8fafc'}
+          onMouseOut={(e)=> e.currentTarget.style.background = 'white'}
+        >
+          ← Retour
+        </button>
       </div>
 
       {/* Toggle between appointments and availability */}

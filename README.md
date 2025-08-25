@@ -1,237 +1,119 @@
-# CuraTime - Plateforme de Gestion de Rendez-vous Médicaux
+# CuraTime — Plateforme de gestion de rendez‑vous médicaux
 
-![CuraTime Logo](https://img.shields.io/badge/CuraTime-Medical%20Appointments-blue)
-![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react)
-![Django](https://img.shields.io/badge/Django-4.x-092E20?logo=django)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15.x-336791?logo=postgresql)
-  path('support/contact/', SupportContactView.as_view(), name='support-contact'),
-    path('doctors/me/', DoctorMeView.as_view(), name='doctor-me'),
+![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react) ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript) ![Django](https://img.shields.io/badge/Django-4.x-092E20?logo=django)
 
 ## 📋 Description
 
-CuraTime est une plateforme moderne de gestion de rendez-vous médicaux qui connecte les patients avec des spécialistes de santé. L'application offre une interface intuitive pour la prise de rendez-vous, la gestion des profils et le suivi des consultations.
+CuraTime connecte les patients avec des médecins et permet la gestion complète des rendez‑vous. L’application inclut un portail patient, un espace médecin, et un panneau d’administration.
 
-## ✨ Fonctionnalités Principales
+## ✨ Fonctionnalités
 
-### 👥 Pour les Patients
-- **Inscription et Authentification** sécurisée
-- **Recherche de Médecins** par spécialité, nom ou localisation
-- **Prise de Rendez-vous** en ligne avec calendrier interactif
-- **Gestion des Rendez-vous** (modification, annulation)
-- **Tableau de Bord** personnalisé avec statistiques
-- **Profil Utilisateur** modifiable
-- **Historique** des consultations
+### Patients
+- **Inscription/Connexion** (JWT)
+- **Recherche de médecins** par spécialité
+- **Prise et gestion de rendez‑vous**
+- **Tableau de bord** et **profil**
 
-### 🩺 Pour les Médecins
-- **Connexion Professionnelle** dédiée
-- **Gestion des Disponibilités** avec calendrier
-- **Suivi des Patients** et rendez-vous
-- **Mise à jour du Statut** des consultations
-- **Profil Professionnel** détaillé
+### Médecins
+- **Connexion professionnelle**
+- **Gestion du profil** (coordonnées, bio, tarif)
+- **Gestion des disponibilités via popup** avec sélection date/heure + éditeur JSON
+- **Liste des rendez‑vous**
 
-### 👨‍💼 Pour les Administrateurs
-- **Gestion des Médecins** (ajout, modification, suppression)
-- **Gestion des Spécialités** médicales
-- **Supervision des Rendez-vous**
-- **Statistiques Globales**
+### Administration
+- **Gestion des médecins** et **spécialités**
+- **Suivi des rendez‑vous** et **statistiques**
 
-## 🛠️ Technologies Utilisées
+## 🗂️ Structure du projet
 
-### Frontend
-- **React 18** avec TypeScript
-- **React Router** pour la navigation
-- **Context API** pour la gestion d'état
-- **React Hook Form** pour les formulaires
-- **Axios** pour les appels API
-- **React Toastify** pour les notifications
+```
+c:\Users\Bassem\Downloads\PFE-LY
+├─ backend/                 # Django + DRF
+│  ├─ PPG/                  # settings/urls
+│  └─ reservations/         # app principale (modèles, vues, serializers)
+└─ frontend/                # React + TypeScript
+   ├─ src/components/
+   ├─ src/pages/
+   ├─ src/services/
+   └─ public/
+```
 
-### Backend
-- **Django 4.x** avec Django REST Framework
-- **PostgreSQL** comme base de données
-- **JWT Authentication** pour la sécurité
-- **CORS** configuré pour React
-- **Pipenv** pour la gestion des dépendances
-
-## 🚀 Installation et Configuration
+## 🛠️ Installation (local)
 
 ### Prérequis
-- Node.js 16+ et npm
-- Python 3.8+
-- PostgreSQL 12+
-- Git
+- Node.js 18+ et npm
+- Python 3.10+
 
-### 1. Cloner le Projet
+### 1) Backend (Django)
 ```bash
-git clone https://github.com/votre-username/curatime.git
-cd curatime
-```
-
-### 2. Configuration du Backend (Django)
-```bash
-cd PPG-main
-
-# Installer pipenv si nécessaire
-pip install pipenv
-
-# Installer les dépendances
-pipenv install
-
-# Activer l'environnement virtuel
-pipenv shell
-
-# Configuration de la base de données PostgreSQL
-# Créer une base de données nommée 'PPG'
-# Utilisateur: postgres, Mot de passe: admin1234
-
-# Appliquer les migrations
-python manage.py makemigrations
+# Depuis c:\Users\Bassem\Downloads\PFE-LY\backend
+pip install -r requirements.txt
 python manage.py migrate
-
-# Créer un superutilisateur
-python manage.py createsuperuser
-
-# Ajouter des données de test
-python add_test_data.py
-
-# Lancer le serveur Django
 python manage.py runserver
 ```
+Démarre sur http://localhost:8000
 
-### 3. Configuration du Frontend (React)
+### 2) Frontend (React)
 ```bash
-cd curatime-frontend
-
-# Installer les dépendances
+# Depuis c:\Users\Bassem\Downloads\PFE-LY\frontend
 npm install
-
-# Lancer le serveur de développement
 npm start
 ```
+Démarre sur http://localhost:3000
 
-## 🌐 URLs d'Accès
+## 🔌 API principales
+- POST `/api/client/login/`, `/api/doctor/login/`, `/api/admin/login/`
+- GET `/api/doctors/`, `/api/doctors/{id}/`
+- GET `/api/specialties/`
+- POST `/api/appointments/` (patient)
+- GET `/api/appointments/list/` (patient)
+- PATCH `/api/appointments/update/{id}/`
+- DELETE `/api/appointments/{id}/delete/`
+- POST `/api/support/contact/`
+- GET/PATCH `/api/doctors/me/` (médecin — inclut `availability`)
 
-- **Frontend React**: http://localhost:3000
-- **Backend Django**: http://localhost:8000
-- **API Documentation**: http://localhost:8000/api/
-- **Admin Django**: http://localhost:8000/admin/
+## 📅 Disponibilités médecin — Popup + JSON
 
-## 👤 Comptes de Test
+Dans la page Médecin: Mon Profil (`/doctor/profile`) :
+1. Cliquez sur **Gérer les disponibilités**.
+2. Dans le popup, ajoutez une **date** et une **heure**, puis **Ajouter**.
+3. À droite, un éditeur **JSON** permet d’éditer/coller un format structuré.
+4. Boutons:
+   - **Charger JSON**: applique le JSON vers la liste
+   - **Mettre à jour JSON**: génère le JSON depuis la liste
+   - **Fermer**: ferme le popup
 
-### Patient
-- **Email**: client@test.com
-- **Mot de passe**: client123
-
-### Médecins
-- **Dr. Jean Dupont**: dr.dupont@hospital.com / doctor123
-- **Dr. Marie Leclerc**: dr.leclerc@hospital.com / doctor123
-- **Dr. Paul Martin**: dr.martin@hospital.com / doctor123
-- **Dr. Sophie Bernard**: dr.bernard@hospital.com / doctor123
-
-## 📁 Structure du Projet
-
+Formats acceptés par `/api/doctors/me/` (PATCH `availability`):
+```json
+{
+  "availability": {
+    "2025-08-25": ["09:00", "10:30"],
+    "2025-08-26": ["14:00"]
+  }
+}
 ```
-curatime/
-├── PPG-main/                 # Backend Django
-│   ├── PPG/                  # Configuration Django
-│   ├── reservations/         # App principale
-│   │   ├── models.py         # Modèles de données
-│   │   ├── views.py          # Vues API
-│   │   ├── serializers.py    # Sérialiseurs DRF
-│   │   └── urls.py           # URLs API
-│   ├── manage.py
-│   └── requirements.txt
-│
-├── curatime-frontend/        # Frontend React
-│   ├── src/
-│   │   ├── components/       # Composants réutilisables
-│   │   ├── pages/           # Pages de l'application
-│   │   ├── services/        # Services API
-│   │   ├── contexts/        # Contextes React
-│   │   ├── types/           # Types TypeScript
-│   │   └── hooks/           # Hooks personnalisés
-│   ├── public/
-│   └── package.json
-│
-└── README.md
+Ou bien:
+```json
+{
+  "availability": [
+    { "date": "2025-08-25", "times": ["09:00", "10:30"] },
+    { "date": "2025-08-26", "times": ["14:00"] }
+  ]
+}
 ```
 
-## 🔧 API Endpoints Principaux
-
-### Authentification
-- `POST /api/client/login/` - Connexion patient
-- `POST /api/doctor/login/` - Connexion médecin
-- `POST /api/register/` - Inscription
-
-### Médecins
-- `GET /api/doctors/` - Liste des médecins
-- `GET /api/doctors/{id}/` - Détail d'un médecin
-- `GET /api/specialties/` - Liste des spécialités
-
-### Rendez-vous
-- `POST /api/appointments/` - Créer un rendez-vous
-- `GET /api/appointments/list/` - Liste des rendez-vous client
-- `PATCH /api/appointments/update/{id}/` - Modifier un rendez-vous
-- `DELETE /api/appointments/{id}/delete/` - Supprimer un rendez-vous
-
-## 🎨 Fonctionnalités UX/UI
-
-- **Design Responsive** adapté mobile et desktop
-- **Interface Intuitive** avec navigation claire
-- **Feedback Visuel** avec loading states et notifications
-- **Validation de Formulaires** en temps réel
-- **Gestion d'Erreurs** avec messages explicites
-- **Thème Professionnel** adapté au secteur médical
+## 🎨 UI — Pied de page
+- Suppression des sections: **Liens rapides** et **Support**.
+- Icônes **Facebook**, **Twitter**, **LinkedIn** rendues en **icônes statiques** (pas de lien).
 
 ## 🔒 Sécurité
-
-- **Authentification JWT** avec tokens sécurisés
-- **Validation des Données** côté client et serveur
-- **Protection CORS** configurée
-- **Hashage des Mots de Passe** avec Django
-- **Routes Protégées** selon les rôles utilisateur
-
-## 📱 Responsive Design
-
-L'application est entièrement responsive et s'adapte à tous les écrans :
-- **Desktop** (1200px+)
-- **Tablet** (768px - 1199px)
-- **Mobile** (320px - 767px)
-
-## 🚀 Déploiement
-
-### Production
-1. Configurer les variables d'environnement
-2. Utiliser une base de données PostgreSQL en production
-3. Configurer un serveur web (Nginx + Gunicorn)
-4. Utiliser HTTPS pour la sécurité
-5. Optimiser les assets React pour la production
+- Authentification **JWT**
+- Permissions par rôle (patient/médecin/admin)
+- Validation serveur via DRF
 
 ## 🤝 Contribution
-
-1. Fork le projet
-2. Créer une branche feature (`git checkout -b feature/AmazingFeature`)
-3. Commit les changements (`git commit -m 'Add AmazingFeature'`)
-4. Push vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrir une Pull Request
-
-## 📄 Licence
-
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
-
-## 👨‍💻 Auteur
-
-**Votre Nom**
-- GitHub: [@votre-username](https://github.com/votre-username)
-- Email: votre.email@example.com
-
-## 🙏 Remerciements
-
-- Django REST Framework pour l'API robuste
-- React Team pour l'excellent framework frontend
-- PostgreSQL pour la base de données fiable
-- Toute la communauté open source
+- Branches feature, PR, revue de code.
 
 ---
 
-⭐ **N'hésitez pas à donner une étoile si ce projet vous a aidé !**
+Besoin d’aide pour intégrer un calendrier plus avancé (hebdo/journalier) ? Voir Documentation complète pour les options et l’API d’`availability`. 

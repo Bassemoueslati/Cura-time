@@ -237,7 +237,8 @@ class DoctorListView(generics.ListAPIView):
     serializer_class = DoctorSerializer
 
 class DoctorDetailView(generics.RetrieveAPIView):
-    permission_classes = [IsClient]
+    # Make doctor details public so patients and guests can view profiles
+    permission_classes = [AllowAny]
     queryset = Doctor.objects.all()
     serializer_class = DoctorSerializer
 
@@ -884,36 +885,81 @@ class DoctorMeView(APIView):
             return Response({'error': 'Profil médecin introuvable'}, status=status.HTTP_404_NOT_FOUND)
 
     def patch(self, request):
-        # Allows updating user fields (first_name, last_name, email, password) and doctor fields (phone, address, city, etc.) or availability
+        # Update either user fields or doctor's own fields (including availability) safely
         try:
             doctor = Doctor.objects.get(email=request.user.email)
         except Doctor.DoesNotExist:
             return Response({'error': 'Profil médecin introuvable'}, status=status.HTTP_404_NOT_FOUND)
 
-        user_serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
-        doctor_fields = {k: v for k, v in request.data.items() if k in ['first_name','last_name','email','password']}
+        # Extract only allowed user fields for the user serializer, ignore others like 'availability'
+        allowed_user_fields = ['first_name', 'last_name', 'email', 'password', 'adresse', 'gender']
+        user_data = {k: v for k, v in request.data.items() if k in allowed_user_fields}
+
         availability = request.data.get('availability', None)
 
         if availability is not None:
-            if not isinstance(availability, dict):
-                return Response({'error': 'availability doit être un objet JSON'}, status=status.HTTP_400_BAD_REQUEST)
+            # Accept either a dict { "YYYY-MM-DD": ["HH:MM", ...] } or a list of items { date, times|slots }
+            if isinstance(availability, list):
+                transformed = {}
+                for item in availability:
+                    date_str = item.get('date') if isinstance(item, dict) else None
+                    times = (item.get('times') if isinstance(item, dict) else None) or (item.get('slots') if isinstance(item, dict) else None) or []
+                    if not date_str or not isinstance(times, list):
+                        return Response({'error': "Chaque élément doit contenir 'date' et 'times' (liste)."}, status=status.HTTP_400_BAD_REQUEST)
+                    # Validate date format
+                    try:
+                        from datetime import datetime as _dt
+                        _dt.strptime(date_str, "%Y-%m-%d")
+                    except Exception:
+                        return Response({'error': f"Date invalide: {date_str}. Format attendu YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
+                    # Validate times format
+                    if not all(isinstance(t, str) and len(t) >= 4 for t in times):
+                        return Response({'error': f"Créneaux invalides pour {date_str}. Utilisez 'HH:MM'."}, status=status.HTTP_400_BAD_REQUEST)
+                    transformed[date_str] = times
+                availability = transformed
+            elif not isinstance(availability, dict):
+                return Response({'error': "availability doit être un objet JSON ou une liste d'objets {date, times}."}, status=status.HTTP_400_BAD_REQUEST)
+
             for date_str, times in availability.items():
                 if not isinstance(times, list) or not all(isinstance(t, str) and len(t) >= 4 for t in times):
                     return Response({'error': f"Format invalide pour {date_str}"}, status=status.HTTP_400_BAD_REQUEST)
             doctor.availability = availability
 
-        # Update doctor simple fields if provided
-        for field in ['phone','address','city','state','zip_code','bio','consultation_fee']:
+        # Update doctor simple fields if provided (handle decimals safely)
+        for field in ['phone', 'address', 'city', 'state', 'zip_code', 'bio']:
             if field in request.data:
                 setattr(doctor, field, request.data[field])
 
-        if user_serializer.is_valid():
+        # Handle consultation_fee specifically (may be '', null, or a number)
+        if 'consultation_fee' in request.data:
+            val = request.data.get('consultation_fee')
+            if val in [None, '', 'null', 'None']:
+                doctor.consultation_fee = None
+            else:
+                try:
+                    from decimal import Decimal
+                    doctor.consultation_fee = Decimal(str(val))
+                except Exception:
+                    return Response({'error': "consultation_fee doit être un nombre décimal."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validate and save user only if user fields are provided
+        if user_data:
+            user_serializer = UserUpdateSerializer(request.user, data=user_data, partial=True)
+            if not user_serializer.is_valid():
+                return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             user_serializer.save()
-            doctor.save()
-            return Response({
-                'message': 'Profil mis à jour',
-                'user': user_serializer.data,
-                'doctor': DoctorSerializer(doctor).data
-            })
+            user_payload = user_serializer.data
         else:
-            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # No user updates requested, but keep a consistent response
+            user_payload = UserUpdateSerializer(request.user).data
+
+        # Guard: force consultation_fee to None when empty string sneaks in
+        if doctor.consultation_fee in ["", " "]:
+            doctor.consultation_fee = None
+
+        doctor.save()
+        return Response({
+            'message': 'Profil mis à jour',
+            'user': user_payload,
+            'doctor': DoctorSerializer(doctor).data
+        })
